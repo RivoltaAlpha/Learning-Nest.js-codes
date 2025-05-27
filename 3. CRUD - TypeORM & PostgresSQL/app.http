@@ -1,0 +1,193 @@
+
+@url = http://localhost:8000
+###############################################
+# Students Controller
+###############################################
+
+### Get all students
+GET {{url}}/students
+
+### Get all students with search
+GET {{url}}/students?search=John
+
+### Get student by ID
+GET {{url}}/students/1
+
+### Create new student
+POST {{url}}/students
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "enrollmentDate": "2025-05-27",
+  "departmentId": 1,
+  "degreeProgram": "BSc Computer Science"
+}
+
+### Update student
+PATCH {{url}}/students/1
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "degreeProgram": "MSc Computer Science"
+}
+
+### Delete student
+DELETE {{url}}/students/1
+
+###############################################
+# Departments Controller
+###############################################
+
+### Get all departments
+GET {{url}}/departments
+
+### Get all departments with search
+GET {{url}}/departments?search=Science
+
+### Get department by ID
+GET {{url}}/departments/1
+
+### Create new department
+POST {{url}}/departments
+Content-Type: application/json
+
+{
+  "name": "Computer Science",
+  "description": "Department of Computer Science and Engineering",
+  "head_of_department": "Dr. Jane Smith"
+}
+
+### Update department
+PATCH {{url}}/departments/1
+Content-Type: application/json
+
+{
+  "name": "Computer Science & Engineering",
+  "description": "Updated department description",
+  "head_of_department": "Dr. Robert Johnson"
+}
+
+### Delete department
+DELETE {{url}}/departments/1
+
+###############################################
+# Lectures Controller
+###############################################
+
+### Get all lectures
+GET {{url}}/lectures
+
+### Get all lectures with search
+GET {{url}}/lectures?search=Math
+
+### Get lecture by ID
+GET {{url}}/lectures/1
+
+### Create new lecture
+POST {{url}}/lectures
+Content-Type: application/json
+
+{
+  "title": "Introduction to Math",
+  "description": "Basic mathematical concepts",
+  "course_id": 1,
+  "duration": 90,
+  "lecture_date": "2025-05-28",
+  "materials": "https://example.com/lecture-slides"
+}
+
+### Update lecture
+PATCH {{url}}/lectures/1
+Content-Type: application/json
+
+{
+  "title": "Advanced Mathematics",
+  "duration": 120,
+  "description": "Advanced topics in calculus and linear algebra",
+  "materials": "https://example.com/advanced-math-slides"
+}
+
+### Delete lecture
+DELETE {{url}}/lectures/1
+
+###############################################
+# Courses Controller
+###############################################
+
+### Get all courses
+GET {{url}}/courses
+
+### Get all courses with search
+GET {{url}}/courses?search=Programming
+
+### Get course by ID
+GET {{url}}/courses/1
+
+### Create new course
+POST {{url}}/courses
+Content-Type: application/json
+
+{
+  "title": "Web Programming",
+  "description": "Introduction to web development",
+  "department_id": 1,
+  "credits": 3,
+  "duration": "16 weeks",
+  "start_date": "2025-05-28",
+  "end_date": "2025-09-15"
+}
+
+### Update course
+PATCH {{url}}/courses/1
+Content-Type: application/json
+
+{
+  "title": "Advanced Web Programming",
+  "credits": 4,
+  "description": "Advanced topics in web development",
+  "duration": "14 weeks"
+}
+
+### Delete course
+DELETE {{url}}/courses/1
+
+###############################################
+# Profile Controller
+###############################################
+
+### Get all profiles
+GET {{url}}/profile
+
+### Get all profiles with search
+GET {{url}}/profile?search=John
+
+### Get profile by ID
+GET {{url}}/profile/1
+
+### Create new profile
+POST {{url}}/profile
+Content-Type: application/json
+
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "john.doe@example.com",
+  "role": "student"
+}
+
+### Update profile
+PATCH {{url}}/profile/1
+Content-Type: application/json
+
+{
+  "fullName": "John Smith",
+  "phoneNumber": "9876543210",
+  "address": "456 Oak St, Town"
+}
+
+### Delete profile
+DELETE {{url}}/profile/1
