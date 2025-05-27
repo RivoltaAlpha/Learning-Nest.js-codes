@@ -12,21 +12,24 @@ import {
 import { StudentsService } from './students.service';
 import { CreateStudentDto, UpdateStudentDto } from './dto';
 
+// @BOdy() == req.body
+// @Param() == req.params
+// @Query() == req.query
+// @Headers() == req.headers
+// @Session() == req.session
+// @Req() == req
+// @Res() == res
+
 @Controller('students')
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
-  // @BOdy() == req.body
-  // @Param() == req.params
-  // @Query() == req.query
-  // @Headers() == req.headers
-  // @Session() == req.session
-  // @Req() == req
-  // @Res() == res
+  // http://localhost:3000/students
   @Post()
   create(@Body() createStudentDto: CreateStudentDto) {
     return this.studentsService.create(createStudentDto);
   }
+
   // http://localhost:3000/students?search=John
   @Get()
   findAll(@Query('search') search?: string) {
@@ -39,6 +42,7 @@ export class StudentsController {
     return this.studentsService.findOne(id);
   }
 
+  // http://localhost:3000/students/1
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe)
@@ -48,6 +52,7 @@ export class StudentsController {
     return this.studentsService.update(id, updateStudentDto);
   }
 
+  // http://localhost:3000/students/1
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.studentsService.remove(id);
