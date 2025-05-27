@@ -5,10 +5,13 @@ import { UpdateLectureDto } from './dto/update-lecture.dto';
 @Injectable()
 export class LecturesService {
   create(createLectureDto: CreateLectureDto) {
-    return 'This action adds a new lecture';
+    return `This action adds a new lecture: ${JSON.stringify(createLectureDto)}`;
   }
 
-  findAll() {
+  findAll(search?: string) {
+    if (search) {
+      return `This action returns lectures matching: ${search}`;
+    }
     return `This action returns all lectures`;
   }
 
@@ -17,7 +20,7 @@ export class LecturesService {
   }
 
   update(id: number, updateLectureDto: UpdateLectureDto) {
-    return `This action updates a #${id} lecture`;
+    return `This action updates a #${id} lecture with: ${JSON.stringify(updateLectureDto)}`;
   }
 
   remove(id: number) {

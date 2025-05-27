@@ -6,37 +6,46 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { LecturesService } from './lectures.service';
-import { CreateLectureDto } from './dto/create-lecture.dto';
-import { UpdateLectureDto } from './dto/update-lecture.dto';
+import { CreateLectureDto, UpdateLectureDto } from './dto';
 
 @Controller('lectures')
 export class LecturesController {
   constructor(private readonly lecturesService: LecturesService) {}
 
+  // http://localhost:3000/lectures
   @Post()
   create(@Body() createLectureDto: CreateLectureDto) {
     return this.lecturesService.create(createLectureDto);
   }
 
+  // http://localhost:3000/lectures?search=Math
   @Get()
-  findAll() {
-    return this.lecturesService.findAll();
+  findAll(@Query('search') search?: string) {
+    return this.lecturesService.findAll(search);
   }
 
+  // http://localhost:3000/lectures/1
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.lecturesService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.lecturesService.findOne(id);
   }
 
+  // http://localhost:3000/lectures/1
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLectureDto: UpdateLectureDto) {
-    return this.lecturesService.update(+id, updateLectureDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateLectureDto: UpdateLectureDto,
+  ) {
+    return this.lecturesService.update(id, updateLectureDto);
   }
 
+  // http://localhost:3000/lectures/1
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.lecturesService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.lecturesService.remove(id);
   }
 }

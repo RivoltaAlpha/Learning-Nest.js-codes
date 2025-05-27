@@ -5,10 +5,13 @@ import { UpdateDepartmentDto } from './dto/update-department.dto';
 @Injectable()
 export class DepartmentsService {
   create(createDepartmentDto: CreateDepartmentDto) {
-    return 'This action adds a new department';
+    return `This action adds a new department: ${JSON.stringify(createDepartmentDto)}`;
   }
 
-  findAll() {
+  findAll(search?: string) {
+    if (search) {
+      return `This action returns departments matching: ${search}`;
+    }
     return `This action returns all departments`;
   }
 
@@ -17,7 +20,7 @@ export class DepartmentsService {
   }
 
   update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
-    return `This action updates a #${id} department`;
+    return `This action updates a #${id} department with: ${JSON.stringify(updateDepartmentDto)}`;
   }
 
   remove(id: number) {
