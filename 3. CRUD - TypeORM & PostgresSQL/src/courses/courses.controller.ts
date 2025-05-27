@@ -49,4 +49,30 @@ export class CoursesController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.coursesService.remove(id);
   }
+
+  // Endpoints for managing course enrollments
+
+  // http://localhost:3000/courses/1/students
+  @Get(':id/students')
+  getEnrolledStudents(@Param('id', ParseIntPipe) id: number) {
+    return this.coursesService.getEnrolledStudents(id);
+  }
+
+  // http://localhost:3000/courses/1/students/2
+  @Post(':courseId/students/:studentId')
+  addStudentToCourse(
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @Param('studentId', ParseIntPipe) studentId: number,
+  ) {
+    return this.coursesService.addStudentToCourse(courseId, studentId);
+  }
+
+  // http://localhost:3000/courses/1/students/2
+  @Delete(':courseId/students/:studentId')
+  removeStudentFromCourse(
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @Param('studentId', ParseIntPipe) studentId: number,
+  ) {
+    return this.coursesService.removeStudentFromCourse(courseId, studentId);
+  }
 }

@@ -42,9 +42,9 @@ export class Course {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Department, (department) => department.id)
-  department: Relation<Department['id']>; // store only the department ID
+  @ManyToOne(() => Department, (department) => department.courses)
+  department: Relation<Department>; // properly reference the department entity
 
-  @ManyToMany(() => Student, (student) => student.id)
+  @ManyToMany(() => Student, (student) => student.courses)
   students: Relation<Student[]>;
 }

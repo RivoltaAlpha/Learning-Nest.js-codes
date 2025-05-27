@@ -42,7 +42,7 @@ export class Student {
   @JoinColumn()
   profile: Relation<Profile>;
 
-  @ManyToMany(() => Course, (course) => course.id)
+  @ManyToMany(() => Course, (course) => course.students)
   @JoinTable() // will create student_course_course_student join table for the many-to-many relationship
   courses: Relation<Course[]>;
 }

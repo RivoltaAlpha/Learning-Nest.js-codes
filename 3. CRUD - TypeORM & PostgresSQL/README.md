@@ -1015,7 +1015,379 @@ export class CoursesService {
 
 ```
 
-
 ### Creating a many-to-many relation
 
 **Student ↔ Course** : A student can be enrolled in multiple courses, and each course can have many students.
+
+In a many-to-many relationship, both entities can have multiple instances of each other. For example, a student can be enrolled in multiple courses, and each course can have multiple students enrolled in it. TypeORM makes it easy to establish this relationship with the `@ManyToMany` decorator.
+
+### Implementing the Many-to-Many Relationship
+
+#### 1. Update Student Entity
+
+In the Student entity, we define the many-to-many relationship with Course entities:
+
+```typescript
+import {
+  Entity,
+  // ...existing code...
+  ManyToMany,
+  JoinTable,
+  // ...existing code...
+} from 'typeorm';
+import { Profile } from '../../profiles/entities/profile.entity';
+import { Course } from 'src/courses/entities/course.entity';
+
+@Entity()
+export class Student {
+  // ...existing code...
+
+  @ManyToMany(() => Course, (course) => course.students)
+  @JoinTable() // Important! This creates the join table in the database
+  courses: Relation<Course[]>;
+}
+```
+
+Key points:
+- The `@ManyToMany()` decorator defines the relationship with Course entities
+- The first parameter is a function returning the Course entity class
+- The second parameter defines the inverse side of the relationship (how to reach Student from Course)
+- The `@JoinTable()` decorator is required on ONE side of the relationship to specify which side owns the relationship and will create the join table
+
+#### 2. Update Course Entity
+
+Similarly, we update the Course entity to establish the other side of the relationship:
+
+```typescript
+import {
+  Entity,
+  // ...existing code...
+  ManyToMany,
+  // ...existing code...
+} from 'typeorm';
+import { Department } from '../../departments/entities/department.entity';
+import { Student } from 'src/students/entities/student.entity';
+
+@Entity()
+export class Course {
+  // ...existing code...
+
+  @ManyToMany(() => Student, (student) => student.courses)
+  students: Relation<Student[]>;
+}
+```
+
+Note that we don't use the `@JoinTable()` decorator on this side, as it's already defined in the Student entity.
+
+#### 3. Update the Student Module
+
+When working with related entities, we need to import them in the module:
+
+```typescript
+@Module({
+  imports: [
+    DatabaseModule,
+    TypeOrmModule.forFeature([Student, Profile, Course]),
+  ],
+  controllers: [StudentsController],
+  providers: [StudentsService],
+})
+export class StudentsModule {}
+```
+
+Similarly, in the Course module:
+
+```typescript
+@Module({
+  imports: [
+    DatabaseModule,
+    TypeOrmModule.forFeature([Course, Department, Student]),
+  ],
+  providers: [CoursesService],
+  controllers: [CoursesController],
+})
+export class CoursesModule {}
+```
+
+### Managing the Many-to-Many Relationship
+
+#### 1. Student Service Methods
+
+To manage enrollments from the student perspective:
+
+```typescript
+async enrollStudentInCourse(studentId: number, courseId: number): Promise<Student> {
+  // Find the student with courses relation
+  const student = await this.studentRepository.findOne({
+    where: { id: studentId },
+    relations: ['courses'],
+  });
+
+  if (!student) {
+    throw new NotFoundException(`Student with ID ${studentId} not found`);
+  }
+
+  // Find the course
+  const course = await this.courseRepository.findOneBy({ id: courseId });
+  if (!course) {
+    throw new NotFoundException(`Course with ID ${courseId} not found`);
+  }
+
+  // Initialize courses array if it doesn't exist
+  if (!student.courses) {
+    student.courses = [];
+  }
+
+  // Check if already enrolled
+  const isAlreadyEnrolled = student.courses.some(
+    (enrolledCourse) => enrolledCourse.id === courseId,
+  );
+
+  if (!isAlreadyEnrolled) {
+    student.courses.push(course);
+    await this.studentRepository.save(student);
+  }
+
+  return student;
+}
+
+async unenrollStudentFromCourse(studentId: number, courseId: number): Promise<Student> {
+  // Find the student with courses relation
+  const student = await this.studentRepository.findOne({
+    where: { id: studentId },
+    relations: ['courses'],
+  });
+
+  if (!student) {
+    throw new NotFoundException(`Student with ID ${studentId} not found`);
+  }
+
+  // Check if the student is enrolled in the course
+  if (!student.courses || student.courses.length === 0) {
+    throw new NotFoundException(
+      `Student with ID ${studentId} is not enrolled in any courses`,
+    );
+  }
+
+  // Filter out the course to unenroll from
+  student.courses = student.courses.filter(
+    (course) => course.id !== courseId,
+  );
+
+  // Save the updated student
+  return this.studentRepository.save(student);
+}
+
+async getStudentCourses(studentId: number): Promise<Course[]> {
+  const student = await this.studentRepository.findOne({
+    where: { id: studentId },
+    relations: ['courses'],
+  });
+
+  if (!student) {
+    throw new NotFoundException(`Student with ID ${studentId} not found`);
+  }
+
+  return student.courses || [];
+}
+
+async updateStudentCourses(studentId: number, courseIds: number[]): Promise<Student> {
+  // Find the student with courses relation
+  const student = await this.studentRepository.findOne({
+    where: { id: studentId },
+    relations: ['courses'],
+  });
+
+  if (!student) {
+    throw new NotFoundException(`Student with ID ${studentId} not found`);
+  }
+
+  // Find all courses by IDs
+  const courses = await this.courseRepository.findBy({
+    id: In(courseIds),
+  });
+
+  if (courses.length !== courseIds.length) {
+    const foundIds = courses.map((course) => course.id);
+    const missingIds = courseIds.filter((id) => !foundIds.includes(id));
+    throw new NotFoundException(
+      `Courses with IDs ${missingIds.join(', ')} not found`,
+    );
+  }
+
+  // Replace student's courses with the new selection
+  student.courses = courses;
+
+  // Save the updated student
+  return this.studentRepository.save(student);
+}
+```
+
+#### 2. Course Service Methods
+
+Similarly, you can manage enrollments from the course perspective:
+
+```typescript
+async getEnrolledStudents(courseId: number): Promise<Student[]> {
+  const course = await this.courseRepository.findOne({
+    where: { id: courseId },
+    relations: ['students', 'students.profile'], // Include profile information
+  });
+
+  if (!course) {
+    throw new NotFoundException(`Course with ID ${courseId} not found`);
+  }
+
+  return course.students || [];
+}
+
+async addStudentToCourse(courseId: number, studentId: number): Promise<Course> {
+  // Find the course with students relation
+  const course = await this.courseRepository.findOne({
+    where: { id: courseId },
+    relations: ['students'],
+  });
+
+  if (!course) {
+    throw new NotFoundException(`Course with ID ${courseId} not found`);
+  }
+
+  // Find the student
+  const student = await this.studentRepository.findOneBy({ id: studentId });
+  if (!student) {
+    throw new NotFoundException(`Student with ID ${studentId} not found`);
+  }
+
+  // Initialize students array if it doesn't exist
+  if (!course.students) {
+    course.students = [];
+  }
+
+  // Check if student is already enrolled
+  const isAlreadyEnrolled = course.students.some(
+    (enrolledStudent) => enrolledStudent.id === studentId,
+  );
+
+  if (!isAlreadyEnrolled) {
+    course.students.push(student);
+    await this.courseRepository.save(course);
+  }
+
+  return course;
+}
+
+async removeStudentFromCourse(courseId: number, studentId: number): Promise<Course> {
+  // Find the course with students relation
+  const course = await this.courseRepository.findOne({
+    where: { id: courseId },
+    relations: ['students'],
+  });
+
+  if (!course) {
+    throw new NotFoundException(`Course with ID ${courseId} not found`);
+  }
+
+  // Check if the course has any enrolled students
+  if (!course.students || course.students.length === 0) {
+    throw new NotFoundException(
+      `Course with ID ${courseId} has no enrolled students`,
+    );
+  }
+
+  // Filter out the student to remove
+  course.students = course.students.filter(
+    (student) => student.id !== studentId,
+  );
+
+  // Save the updated course
+  return this.courseRepository.save(course);
+}
+```
+
+#### 3. Controller Endpoints
+
+Both controllers need endpoints to manage the relationship:
+
+**Student Controller**:
+```typescript
+// http://localhost:8000/students/1/courses
+@Get(':id/courses')
+getStudentCourses(@Param('id', ParseIntPipe) id: number) {
+  return this.studentsService.getStudentCourses(id);
+}
+
+// http://localhost:8000/students/1/courses/2
+@Post(':studentId/courses/:courseId')
+enrollStudentInCourse(
+  @Param('studentId', ParseIntPipe) studentId: number,
+  @Param('courseId', ParseIntPipe) courseId: number,
+) {
+  return this.studentsService.enrollStudentInCourse(studentId, courseId);
+}
+
+// http://localhost:8000/students/1/courses/2
+@Delete(':studentId/courses/:courseId')
+unenrollStudentFromCourse(
+  @Param('studentId', ParseIntPipe) studentId: number,
+  @Param('courseId', ParseIntPipe) courseId: number,
+) {
+  return this.studentsService.unenrollStudentFromCourse(studentId, courseId);
+}
+
+// http://localhost:8000/students/1/courses
+@Patch(':id/courses')
+updateStudentCourses(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() courseIds: number[],
+) {
+  return this.studentsService.updateStudentCourses(id, courseIds);
+}
+```
+
+**Course Controller**:
+```typescript
+// http://localhost:3000/courses/1/students
+@Get(':id/students')
+getEnrolledStudents(@Param('id', ParseIntPipe) id: number) {
+  return this.coursesService.getEnrolledStudents(id);
+}
+
+// http://localhost:3000/courses/1/students/2
+@Post(':courseId/students/:studentId')
+addStudentToCourse(
+  @Param('courseId', ParseIntPipe) courseId: number,
+  @Param('studentId', ParseIntPipe) studentId: number,
+) {
+  return this.coursesService.addStudentToCourse(courseId, studentId);
+}
+
+// http://localhost:3000/courses/1/students/2
+@Delete(':courseId/students/:studentId')
+removeStudentFromCourse(
+  @Param('courseId', ParseIntPipe) courseId: number,
+  @Param('studentId', ParseIntPipe) studentId: number,
+) {
+  return this.coursesService.removeStudentFromCourse(courseId, studentId);
+}
+```
+
+### Important Notes About Many-to-Many Relationships:
+
+1. **Join Table**: The `@JoinTable()` decorator must be specified on one (and only one) side of the relationship. This decorator creates the join table in the database.
+
+2. **Synchronization**: When working with many-to-many relationships, TypeORM automatically synchronizes both sides of the relationship. For example, if you enroll a student in a course from the student side, the course's students array will also be updated.
+
+3. **Eager Loading**: By default, relationships are not eagerly loaded. You must explicitly include them using the `relations` option in your query or set `eager: true` in the relationship decorator.
+
+4. **Cascade Options**: You can specify cascade options to automatically handle related entities:
+   ```typescript
+   @ManyToMany(() => Course, (course) => course.students, {
+     cascade: true, // or ['insert', 'update', 'remove']
+   })
+   ```
+
+5. **Database Impact**: Many-to-many relationships require a join table, which can impact performance for large datasets. For very large systems, consider optimizing your queries or using a different relationship pattern.
+
+6. **Bidirectional vs. Unidirectional**: The examples show a bidirectional relationship, but you can also create unidirectional many-to-many relationships by omitting the second parameter in the `@ManyToMany()` decorator.
+
+By following this approach, you create a clean, maintainable codebase for managing complex relationships between students and courses.
