@@ -302,3 +302,12 @@ pnpm add -D @types/cors
 ```
 
 Now you're ready to start building your RESTful API with Express.js, TypeScript, and PostgreSQL!
+
+## Recent Updates
+
+The project documentation has been enhanced with the following improvements:
+- Added detailed step-by-step instructions for setting up the project from scratch
+- Included complete configuration examples for TypeScript, package.json, and Docker
+- Added clear instructions for environment setup and database configuration
+- Provided comprehensive .gitignore settings for Node.js and TypeScript projects
+- Added basic Express server implementation with TypeScript
