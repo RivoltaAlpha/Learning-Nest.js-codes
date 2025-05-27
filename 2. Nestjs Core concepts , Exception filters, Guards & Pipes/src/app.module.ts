@@ -5,6 +5,7 @@ import { LecturesModule } from './lectures/lectures.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { StudentsModule } from './students/students.module';
 import { ConfigModule } from '@nestjs/config';
+import { ProfileModule } from './profiles/profile.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConfigModule } from '@nestjs/config';
     LecturesModule,
     DepartmentsModule,
     StudentsModule,
+    ProfileModule,
   ],
   controllers: [],
   providers: [],

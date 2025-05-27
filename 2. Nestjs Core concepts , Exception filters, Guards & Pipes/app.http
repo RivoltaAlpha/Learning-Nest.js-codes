@@ -18,18 +18,21 @@ POST {{url}}/students
 Content-Type: application/json
 
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "age": 20
+  "firstName": "John",
+  "lastName": "Doe",
+  "enrollmentDate": "2025-05-27",
+  "departmentId": 1,
+  "degreeProgram": "BSc Computer Science"
 }
 
 ### Update student
-PATCH {{url}}students/1
+PATCH {{url}}/students/1
 Content-Type: application/json
 
 {
-  "name": "John Smith",
-  "email": "john.smith@example.com"
+  "firstName": "John",
+  "lastName": "Smith",
+  "degreeProgram": "MSc Computer Science"
 }
 
 ### Delete student
@@ -54,7 +57,8 @@ Content-Type: application/json
 
 {
   "name": "Computer Science",
-  "description": "Department of Computer Science and Engineering"
+  "description": "Department of Computer Science and Engineering",
+  "head_of_department": "Dr. Jane Smith"
 }
 
 ### Update department
@@ -63,7 +67,8 @@ Content-Type: application/json
 
 {
   "name": "Computer Science & Engineering",
-  "description": "Updated department description"
+  "description": "Updated department description",
+  "head_of_department": "Dr. Robert Johnson"
 }
 
 ### Delete department
@@ -89,8 +94,10 @@ Content-Type: application/json
 {
   "title": "Introduction to Math",
   "description": "Basic mathematical concepts",
+  "course_id": 1,
   "duration": 90,
-  "departmentId": 1
+  "lecture_date": "2025-05-28",
+  "materials": "https://example.com/lecture-slides"
 }
 
 ### Update lecture
@@ -99,7 +106,9 @@ Content-Type: application/json
 
 {
   "title": "Advanced Mathematics",
-  "duration": 120
+  "duration": 120,
+  "description": "Advanced topics in calculus and linear algebra",
+  "materials": "https://example.com/advanced-math-slides"
 }
 
 ### Delete lecture
@@ -124,9 +133,12 @@ Content-Type: application/json
 
 {
   "title": "Web Programming",
-  "code": "CS101",
+  "description": "Introduction to web development",
+  "department_id": 1,
   "credits": 3,
-  "departmentId": 1
+  "duration": "16 weeks",
+  "start_date": "2025-05-28",
+  "end_date": "2025-09-15"
 }
 
 ### Update course
@@ -135,8 +147,47 @@ Content-Type: application/json
 
 {
   "title": "Advanced Web Programming",
-  "credits": 4
+  "credits": 4,
+  "description": "Advanced topics in web development",
+  "duration": "14 weeks"
 }
 
 ### Delete course
 DELETE {{url}}/courses/1
+
+###############################################
+# Profile Controller
+###############################################
+
+### Get all profiles
+GET {{url}}/profile
+
+### Get all profiles with search
+GET {{url}}/profile?search=John
+
+### Get profile by ID
+GET {{url}}/profile/1
+
+### Create new profile
+POST {{url}}/profile
+Content-Type: application/json
+
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "john.doe@example.com",
+  "role": "student"
+}
+
+### Update profile
+PATCH {{url}}/profile/1
+Content-Type: application/json
+
+{
+  "fullName": "John Smith",
+  "phoneNumber": "9876543210",
+  "address": "456 Oak St, Town"
+}
+
+### Delete profile
+DELETE {{url}}/profile/1
