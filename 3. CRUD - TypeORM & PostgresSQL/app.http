@@ -6,16 +6,16 @@
 ###############################################
 
 ### Get all profiles
-GET {{url}}/profile
+GET {{url}}/profiles
 
 ### Get all profiles with search
-GET {{url}}/profile?email=john@gmail.com
+GET {{url}}/profiles?email=john@gmail.com
 
 ### Get profile by ID
-GET {{url}}/profile/1
+GET {{url}}/profiles/1
 
 ### Create new profile
-POST {{url}}/profile
+POST {{url}}/profiles
 Content-Type: application/json
 
 {
@@ -26,16 +26,17 @@ Content-Type: application/json
 }
 
 ### Update profile
-PATCH {{url}}/profile/1
+PATCH {{url}}/profiles/2
 Content-Type: application/json
 
 {
+  "id": 1,
   "firstName": "John Smith",
   "email": "updatejohn.doe@example.com"
 }
 
 ### Delete profile
-DELETE {{url}}/profile/1
+DELETE {{url}}/profiles/1
 
 ###############################################
 # Students Controller
@@ -55,14 +56,10 @@ POST {{url}}/students
 Content-Type: application/json
 
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
   "enrollmentDate": "2025-05-27",
   "role": "student",
   "degreeProgram": "BSc Computer Science",
   "gpa": 3.5,
-  "departmentId": 1
 }
 
 ### Update student
@@ -70,9 +67,8 @@ PATCH {{url}}/students/1
 Content-Type: application/json
 
 {
-  "firstName": "John",
-  "lastName": "Smith",
-  "degreeProgram": "MSc Computer Science"
+  "degreeProgram": "MSc Computer Science",
+  "profile": 1
 }
 
 ### Delete student

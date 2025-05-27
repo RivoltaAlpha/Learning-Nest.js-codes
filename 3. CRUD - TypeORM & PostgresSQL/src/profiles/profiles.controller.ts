@@ -12,29 +12,29 @@ import {
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto, UpdateProfileDto } from './dto';
 
-@Controller('profile')
+@Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
-  // http://localhost:3000/profile
+  // http://localhost:3000/profiles
   @Post()
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto);
   }
 
-  // http://localhost:3000/profile?email=John
+  // http://localhost:3000/profiles?email=John
   @Get()
   findAll(@Query('email') email?: string) {
     return this.profilesService.findAll(email);
   }
 
-  // http://localhost:3000/profile/1
+  // http://localhost:3000/profiles/1
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.profilesService.findOne(id);
   }
 
-  // http://localhost:3000/profile/1
+  // http://localhost:3000/profiles/1
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -43,7 +43,7 @@ export class ProfilesController {
     return this.profilesService.update(id, updateProfileDto);
   }
 
-  // http://localhost:3000/profile/1
+  // http://localhost:3000/profiles/1
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.profilesService.remove(id);

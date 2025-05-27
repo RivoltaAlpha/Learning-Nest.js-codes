@@ -25,4 +25,7 @@ export class CreateStudentDto {
   @IsInt()
   @IsOptional()
   departmentId?: number;
+
+  @IsNumber()
+  profileId: string; // Assuming profileId is a string, adjust if it's a number or UUID
 }
