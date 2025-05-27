@@ -4,9 +4,19 @@ import { CoursesModule } from './courses/courses.module';
 import { LecturesModule } from './lectures/lectures.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { StudentsModule } from './students/students.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [CoursesModule, LecturesModule, DepartmentsModule, StudentsModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    CoursesModule,
+    LecturesModule,
+    DepartmentsModule,
+    StudentsModule,
+  ],
   controllers: [],
   providers: [],
 })
