@@ -1,0 +1,142 @@
+
+@url = http://localhost:8000
+###############################################
+# Students Controller
+###############################################
+
+### Get all students
+GET {{url}}/students
+
+### Get all students with search
+GET {{url}}/students?search=John
+
+### Get student by ID
+GET {{url}}/students/1
+
+### Create new student
+POST {{url}}/students
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "age": 20
+}
+
+### Update student
+PATCH {{url}}students/1
+Content-Type: application/json
+
+{
+  "name": "John Smith",
+  "email": "john.smith@example.com"
+}
+
+### Delete student
+DELETE {{url}}/students/1
+
+###############################################
+# Departments Controller
+###############################################
+
+### Get all departments
+GET {{url}}/departments
+
+### Get all departments with search
+GET {{url}}/departments?search=Science
+
+### Get department by ID
+GET {{url}}/departments/1
+
+### Create new department
+POST {{url}}/departments
+Content-Type: application/json
+
+{
+  "name": "Computer Science",
+  "description": "Department of Computer Science and Engineering"
+}
+
+### Update department
+PATCH {{url}}/departments/1
+Content-Type: application/json
+
+{
+  "name": "Computer Science & Engineering",
+  "description": "Updated department description"
+}
+
+### Delete department
+DELETE {{url}}/departments/1
+
+###############################################
+# Lectures Controller
+###############################################
+
+### Get all lectures
+GET {{url}}/lectures
+
+### Get all lectures with search
+GET {{url}}/lectures?search=Math
+
+### Get lecture by ID
+GET {{url}}/lectures/1
+
+### Create new lecture
+POST {{url}}/lectures
+Content-Type: application/json
+
+{
+  "title": "Introduction to Math",
+  "description": "Basic mathematical concepts",
+  "duration": 90,
+  "departmentId": 1
+}
+
+### Update lecture
+PATCH {{url}}/lectures/1
+Content-Type: application/json
+
+{
+  "title": "Advanced Mathematics",
+  "duration": 120
+}
+
+### Delete lecture
+DELETE {{url}}/lectures/1
+
+###############################################
+# Courses Controller
+###############################################
+
+### Get all courses
+GET {{url}}/courses
+
+### Get all courses with search
+GET {{url}}/courses?search=Programming
+
+### Get course by ID
+GET {{url}}/courses/1
+
+### Create new course
+POST {{url}}/courses
+Content-Type: application/json
+
+{
+  "title": "Web Programming",
+  "code": "CS101",
+  "credits": 3,
+  "departmentId": 1
+}
+
+### Update course
+PATCH {{url}}/courses/1
+Content-Type: application/json
+
+{
+  "title": "Advanced Web Programming",
+  "credits": 4
+}
+
+### Delete course
+DELETE {{url}}/courses/1
