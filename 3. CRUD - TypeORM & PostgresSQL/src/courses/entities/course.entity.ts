@@ -3,10 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  // OneToMany,
+  ManyToMany,
+  Relation,
 } from 'typeorm';
 import { Department } from '../../departments/entities/department.entity';
-// import { Lecture } from './lecture.entity';
+import { Student } from 'src/students/entities/student.entity';
 
 @Entity()
 export class Course {
@@ -42,8 +43,8 @@ export class Course {
   updatedAt: Date;
 
   @ManyToOne(() => Department, (department) => department.id)
-  department: Department['id']; // store only the department ID
+  department: Relation<Department['id']>; // store only the department ID
 
-  // @OneToMany(() => Lecture, (lecture) => lecture.course)
-  // lectures: Lecture[];
+  @ManyToMany(() => Student, (student) => student.id)
+  students: Relation<Student[]>;
 }

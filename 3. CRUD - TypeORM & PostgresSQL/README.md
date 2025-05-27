@@ -651,7 +651,7 @@ export class Course {
 
 ```
 
-let's create the other side of the relationship that is: 
+let's create the other side of the relationship that is:
 
 `department.entity.ts`
 
@@ -690,7 +690,7 @@ export class Department {
 
 ```
 
-Remember to register/ import `DatabaseModule` and `TypeOrmModule.forFeature([Department])` in the `DepartmentsModule` 
+Remember to register/ import `DatabaseModule` and `TypeOrmModule.forFeature([Department])` in the `DepartmentsModule`
 
 `department.module.ts`
 
@@ -1014,3 +1014,8 @@ export class CoursesService {
 }
 
 ```
+
+
+### Creating a many-to-many relation
+
+**Student ↔ Course** : A student can be enrolled in multiple courses, and each course can have many students.

@@ -3,13 +3,13 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToOne,
-  // ManyToMany,
-  // JoinTable,
+  ManyToMany,
+  JoinTable,
   JoinColumn,
   Relation,
 } from 'typeorm';
 import { Profile } from '../../profiles/entities/profile.entity';
-// import { Course } from './course.entity';
+import { Course } from 'src/courses/entities/course.entity';
 
 @Entity()
 export class Student {
@@ -42,7 +42,7 @@ export class Student {
   @JoinColumn()
   profile: Relation<Profile>;
 
-  //   @ManyToMany(() => Course)
-  //   @JoinTable() // Define the join table for the many-to-many relationship
-  //   courses: Course[];
+  @ManyToMany(() => Course, (course) => course.id)
+  @JoinTable() // will create student_course_course_student join table for the many-to-many relationship
+  courses: Relation<Course[]>;
 }
