@@ -2,10 +2,8 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+<p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
     <p align="center">
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
@@ -24,6 +22,177 @@
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+
+## NestJS Cheat Sheet
+
+### Installation
+
+```bash
+# Install NestJS CLI globally
+$ npm install -g @nestjs/cli
+
+# Or with yarn
+$ yarn global add @nestjs/cli
+
+# Or with pnpm
+$ pnpm add -g @nestjs/cli
+```
+
+### Create a new NestJS application
+
+```bash
+# Create a new project
+$ nest new project-name
+
+# Create a new project with specific package manager
+$ nest new project-name --package-manager npm
+$ nest new project-name --package-manager yarn
+$ nest new project-name --package-manager pnpm
+```
+
+### Generate components
+
+```bash
+# Generate a controller
+$ nest g controller users
+
+# Generate a service
+$ nest g service users
+
+# Generate a module
+$ nest g module users
+
+# Generate a resource (CRUD)
+$ nest g resource users
+
+# Generate a class
+$ nest g class users/dto/create-user.dto
+
+# Generate an interface
+$ nest g interface users/interfaces/user.interface
+
+# Generate a middleware
+$ nest g middleware logger
+```
+
+### Project structure
+
+```
+src/
+├── app.controller.ts      # Basic controller
+├── app.module.ts          # Root module
+├── app.service.ts         # Basic service
+└── main.ts                # Entry point
+```
+
+### Providers and Dependency Injection
+
+```typescript
+// Service example
+@Injectable()
+export class UsersService {
+  findAll() {
+    return ['user1', 'user2'];
+  }
+}
+
+// Controller using the service
+@Controller('users')
+export class UsersController {
+  constructor(private usersService: UsersService) {}
+
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
+  }
+}
+```
+
+### HTTP Request decorators
+
+```typescript
+@Get()
+@Post()
+@Put()
+@Delete()
+@Patch()
+@Options()
+@Head()
+@All()
+```
+
+### Route parameters
+
+```typescript
+@Get(':id')
+findOne(@Param('id') id: string) {
+  return `This action returns a #${id} item`;
+}
+```
+
+### Request object
+
+```typescript
+@Post()
+create(@Body() createUserDto: CreateUserDto, @Req() request: Request) {
+  // Access headers, body, or query parameters
+  console.log(request.headers);
+  return 'This action adds a new user';
+}
+```
+
+### Middleware
+
+```typescript
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log('Request...');
+    next();
+  }
+}
+```
+
+### Guards
+
+```typescript
+@Injectable()
+export class AuthGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    return validateRequest(request);
+  }
+}
+```
+
+### Pipes
+
+```typescript
+@Post()
+create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
+  return 'This action adds a new user';
+}
+```
+
+### Exception filters
+
+```typescript
+@Catch(HttpException)
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+    const status = exception.getStatus();
+
+    response.status(status).json({
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    });
+  }
+}
+```
 
 ## Project setup
 
@@ -96,3 +265,5 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
