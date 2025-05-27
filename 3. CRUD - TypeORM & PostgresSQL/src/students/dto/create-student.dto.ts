@@ -4,24 +4,46 @@ import {
   IsDateString,
   IsOptional,
   IsInt,
+  IsEmail,
+  IsEnum,
+  IsNumber,
+  Min,
+  Max,
 } from 'class-validator';
 
 export class CreateStudentDto {
+  // Profile information
   @IsString()
   @IsNotEmpty()
-  firstName: string;
+  first_name: string;
 
   @IsString()
   @IsNotEmpty()
-  lastName: string;
+  last_name: string;
 
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsEnum(['student', 'faculty', 'admin', 'guest'])
+  @IsOptional()
+  role?: string = 'guest';
+
+  // Student specific information
   @IsDateString()
-  enrollmentDate: string;
+  enrollment_date: string;
+
+  @IsString()
+  @IsOptional()
+  degree_program?: string;
+
+  @IsNumber()
+  @Min(0)
+  @Max(4.0)
+  @IsOptional()
+  gpa?: number;
 
   @IsInt()
   @IsOptional()
-  departmentId?: number; // Optional department for students
-
-  @IsString()
-  degreeProgram: string; // e.g., "BSc Computer Science"
+  department_id?: number;
 }

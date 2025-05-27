@@ -12,14 +12,6 @@ import {
 import { StudentsService } from './students.service';
 import { CreateStudentDto, UpdateStudentDto } from './dto';
 
-// @BOdy() == req.body
-// @Param() == req.params
-// @Query() == req.query
-// @Headers() == req.headers
-// @Session() == req.session
-// @Req() == req
-// @Res() == res
-
 @Controller('students')
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
@@ -30,10 +22,10 @@ export class StudentsController {
     return this.studentsService.create(createStudentDto);
   }
 
-  // http://localhost:3000/students?search=John
+  // http://localhost:3000/students?name=John
   @Get()
-  findAll(@Query('search') search?: string) {
-    return this.studentsService.findAll(search);
+  findAll(@Query('name') name?: string) {
+    return this.studentsService.findAll(name);
   }
 
   // http://localhost:3000/students/1
