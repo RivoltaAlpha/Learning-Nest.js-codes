@@ -1,11 +1,14 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { LoggerMiddleware } from './logger.middleware';
+import { CoursesModule } from './courses/courses.module';
+import { LecturesModule } from './lectures/lectures.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { StudentsModule } from './students/students.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [CoursesModule, LecturesModule, DepartmentsModule, StudentsModule],
+  controllers: [],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
