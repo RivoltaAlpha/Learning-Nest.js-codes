@@ -1,0 +1,71 @@
+
+@server_url = http://localhost:8000
+
+### Test API Welcome
+GET {{server_url}}/api
+
+# USERS
+
+### Get all users
+GET {{server_url}}/api/users
+
+### Get user by ID (replace ID with an actual UUID)
+GET {{server_url}}/api/users/94d2d606-2aa9-412c-9605-ef4afc10add5
+
+### Delete a user (replace ID with an actual UUID)
+DELETE {{server_url}}/api/users/94d2d606-2aa9-412c-9605-ef4afc10add5
+
+### Create a user
+POST {{server_url}}/api/users
+content-type: application/json
+
+{
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "age": 28,
+    "avatar": "https://example.com/avatar.jpg"
+}
+
+### Update a user (replace ID with an actual UUID)
+PUT {{server_url}}/api/users/123e4567-e89b-12d3-a456-426614174000
+content-type: application/json
+
+{
+    "name": "John Smith",
+    "email": "john.smith@example.com",
+    "age": 30
+}
+
+# PRODUCTS
+
+### Get all products
+GET {{server_url}}/api/products
+
+### Get product by ID (replace ID with an actual UUID)
+GET {{server_url}}/api/products/123e4567-e89b-12d3-a456-426614174000
+
+### Delete a product (replace ID with an actual UUID)
+DELETE {{server_url}}/api/products/123e4567-e89b-12d3-a456-426614174000
+
+### Create a product
+POST {{server_url}}/api/products
+content-type: application/json
+
+{    
+    "name": "Smartphone",
+    "description": "Latest model smartphone with advanced features.",
+    "price": 799.99,
+    "category": "Electronics",
+    "stock": 100
+}
+
+### Update a product (replace ID with an actual UUID)
+PUT {{server_url}}/api/products/123e4567-e89b-12d3-a456-426614174000
+content-type: application/json
+
+{    
+    "name": "Smartphone Pro",
+    "description": "Professional edition smartphone with enhanced features.",
+    "price": 999.99,
+    "stock": 50
+}

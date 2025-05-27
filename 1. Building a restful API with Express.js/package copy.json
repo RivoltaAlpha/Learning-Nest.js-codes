@@ -1,0 +1,35 @@
+{
+  "name": "learning-express-js",
+  "version": "1.0.0",
+  "description": "RESTful API with Express 5",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc --outDir dist",
+    "start": "node dist/index.js",
+    "seed": "tsx scripts/seed.ts",
+    "backup": "tsx scripts/backup.ts"
+  },
+  "keywords": [
+    "express",
+    "api",
+    "rest"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.10.0",
+  "dependencies": {
+    "@faker-js/faker": "^9.8.0",
+     "pg": "^8.16.0",
+    "express": "^5.1.0",
+    "uuid": "^11.1.0",
+     "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.21",
+    "@types/pg": "^8.15.2",
+        "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
