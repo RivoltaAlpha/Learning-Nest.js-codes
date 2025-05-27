@@ -2,7 +2,6 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-
 <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
     <p align="center">
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
@@ -29,50 +28,50 @@
 
 ```bash
 # Install NestJS CLI globally
-$ npm install -g @nestjs/cli
+  npm install -g @nestjs/cli
 
 # Or with yarn
-$ yarn global add @nestjs/cli
+  yarn global add @nestjs/cli
 
 # Or with pnpm
-$ pnpm add -g @nestjs/cli
+  pnpm add -g @nestjs/cli
 ```
 
 ### Create a new NestJS application
 
 ```bash
 # Create a new project
-$ nest new project-name
+  nest new project-name
 
 # Create a new project with specific package manager
-$ nest new project-name --package-manager npm
-$ nest new project-name --package-manager yarn
-$ nest new project-name --package-manager pnpm
+  nest new project-name --package-manager npm
+  nest new project-name --package-manager yarn
+  nest new project-name --package-manager pnpm
 ```
 
 ### Generate components
 
 ```bash
 # Generate a controller
-$ nest g controller users
+nest g controller users
 
 # Generate a service
-$ nest g service users
+nest g service users
 
 # Generate a module
-$ nest g module users
+nest g module users
 
 # Generate a resource (CRUD)
-$ nest g resource users
+nest g resource users
 
 # Generate a class
-$ nest g class users/dto/create-user.dto
+nest g class users/dto/create-user.dto
 
 # Generate an interface
-$ nest g interface users/interfaces/user.interface
+nest g interface users/interfaces/user.interface
 
 # Generate a middleware
-$ nest g middleware logger
+nest g middleware logger
 ```
 
 ### Project structure
@@ -126,7 +125,7 @@ export class UsersController {
 ```typescript
 @Get(':id')
 findOne(@Param('id') id: string) {
-  return `This action returns a #${id} item`;
+  return `This action returns a # {id} item`;
 }
 ```
 
@@ -197,33 +196,33 @@ export class HttpExceptionFilter implements ExceptionFilter {
 ## Project setup
 
 ```bash
-$ pnpm install
+  pnpm install
 ```
 
 ## Compile and run the project
 
 ```bash
 # development
-$ pnpm run start
+  pnpm run start
 
 # watch mode
-$ pnpm run start:dev
+  pnpm run start:dev
 
 # production mode
-$ pnpm run start:prod
+  pnpm run start:prod
 ```
 
 ## Run tests
 
 ```bash
 # unit tests
-$ pnpm run test
+  pnpm run test
 
 # e2e tests
-$ pnpm run test:e2e
+  pnpm run test:e2e
 
 # test coverage
-$ pnpm run test:cov
+  pnpm run test:cov
 ```
 
 ## Deployment
@@ -233,8 +232,8 @@ When you're ready to deploy your NestJS application to production, there are som
 If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+  pnpm install -g @nestjs/mau
+  mau deploy
 ```
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
