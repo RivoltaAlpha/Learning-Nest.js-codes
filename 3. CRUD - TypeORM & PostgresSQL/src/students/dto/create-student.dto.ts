@@ -27,5 +27,5 @@ export class CreateStudentDto {
   departmentId?: number;
 
   @IsNumber()
-  profileId: string; // Assuming profileId is a string, adjust if it's a number or UUID
+  profileId: number; // Assuming profileId is a string, adjust if it's a number or UUID
 }

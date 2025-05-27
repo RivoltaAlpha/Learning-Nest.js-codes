@@ -180,16 +180,15 @@ import { StudentsController } from './students.controller';
 import { DatabaseModule } from 'src/database/database.module';
 import { Student } from './entities/student.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Profile } from 'src/profiles/entities/profile.entity';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    TypeOrmModule.forFeature([Student])
-  ],
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Student, Profile])],
   controllers: [StudentsController],
   providers: [StudentsService],
 })
 export class StudentsModule {}
+
 ```
 
 ### Inverse side of the relationship (Profile)
@@ -264,9 +263,9 @@ import { Profile } from './entities/profile.entity';
   imports: [DatabaseModule, TypeOrmModule.forFeature([Profile])],
   controllers: [ProfilesController],
   providers: [ProfilesService],
-  exports: [ProfilesService],
 })
-export class ProfileModule { }
+export class ProfileModule {}
+
 ```
 
 `profiles.controller.ts`
@@ -290,25 +289,21 @@ import { CreateProfileDto, UpdateProfileDto } from './dto';
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
-  // http://localhost:3000/profiles
   @Post()
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.create(createProfileDto);
   }
-
-  // http://localhost:3000/profiles?email=John
+  
   @Get()
   findAll(@Query('email') email?: string) {
     return this.profilesService.findAll(email);
   }
-
-  // http://localhost:3000/profiles/1
+ 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.profilesService.findOne(id);
   }
-
-  // http://localhost:3000/profiles/1
+  
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -317,7 +312,6 @@ export class ProfilesController {
     return this.profilesService.update(id, updateProfileDto);
   }
 
-  // http://localhost:3000/profiles/1
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.profilesService.remove(id);
@@ -342,11 +336,11 @@ export class ProfilesService {
     @InjectRepository(Profile) private profileRepository: Repository<Profile>,
   ) {}
 
-  async create(createProfileDto: CreateProfileDto) {
+  async create(createProfileDto: CreateProfileDto): Promise<Profile> {
     return await this.profileRepository
       .save(createProfileDto)
       .then((profile) => {
-        return `Profile with id ${profile.id} has been created`;
+        return profile;
       })
       .catch((error) => {
         console.error('Error creating profile:', error);
@@ -368,7 +362,7 @@ export class ProfilesService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Profile | string> {
     return await this.profileRepository
       .findOneBy({ id })
       .then((profile) => {
@@ -386,16 +380,10 @@ export class ProfilesService {
   async update(
     id: number,
     updateProfileDto: UpdateProfileDto,
-  ): Promise<string> {
-    return await this.profileRepository
-      .update(id, updateProfileDto)
-      .then(() => {
-        return `Profile with id ${id} has been updated`;
-      })
-      .catch((error) => {
-        console.error('Error updating profile:', error);
-        throw new Error(`Failed to update profile with id ${id}`);
-      });
+  ): Promise<Profile | string> {
+    await this.profileRepository.update(id, updateProfileDto);
+
+    return await this.findOne(id);
   }
 
   async remove(id: number): Promise<string> {
@@ -419,28 +407,33 @@ export class ProfilesService {
 `students.service.ts`
 
 ```typescript
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto, UpdateStudentDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from './entities/student.entity';
 import { Repository } from 'typeorm';
+import { Profile } from 'src/profiles/entities/profile.entity';
 
 @Injectable()
 export class StudentsService {
   constructor(
     @InjectRepository(Student) private studentRepository: Repository<Student>,
+    @InjectRepository(Profile) private profileRepository: Repository<Profile>,
   ) {}
 
-  async create(createStudentDto: CreateStudentDto): Promise<string> {
-    return await this.studentRepository
-      .save(createStudentDto)
-      .then((student) => {
-        return `Student with id ${student.id} has been created`;
-      })
-      .catch((error) => {
-        console.error('Error creating student:', error);
-        throw new Error('Failed to create student');
-      });
+  async create(createStudentDto: CreateStudentDto): Promise<Student> {
+    // if profile id exists, we need to check if the profile is already associated with a student
+    const existingProfile = await this.profileRepository.findOneBy({
+      id: createStudentDto.profileId,
+    });
+
+    if (!existingProfile) {
+      throw new NotFoundException(
+        `Profile with ID ${createStudentDto.profileId} not found`,
+      );
+    }
+
+    return this.studentRepository.save(createStudentDto);
   }
 
   async findAll(name?: string): Promise<Student[] | Student> {

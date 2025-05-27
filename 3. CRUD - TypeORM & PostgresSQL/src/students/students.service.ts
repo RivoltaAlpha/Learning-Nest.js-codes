@@ -1,25 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto, UpdateStudentDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from './entities/student.entity';
 import { Repository } from 'typeorm';
+import { Profile } from 'src/profiles/entities/profile.entity';
 
 @Injectable()
 export class StudentsService {
   constructor(
     @InjectRepository(Student) private studentRepository: Repository<Student>,
+    @InjectRepository(Profile) private profileRepository: Repository<Profile>,
   ) {}
 
-  async create(createStudentDto: CreateStudentDto): Promise<string> {
-    return await this.studentRepository
-      .save(createStudentDto)
-      .then((student) => {
-        return `Student with id ${student.id} has been created`;
-      })
-      .catch((error) => {
-        console.error('Error creating student:', error);
-        throw new Error('Failed to create student');
-      });
+  async create(createStudentDto: CreateStudentDto): Promise<Student> {
+    // if profile id exists, we need to check if the profile is already associated with a student
+    const existingProfile = await this.profileRepository.findOneBy({
+      id: createStudentDto.profileId,
+    });
+
+    if (!existingProfile) {
+      throw new NotFoundException(
+        `Profile with ID ${createStudentDto.profileId} not found`,
+      );
+    }
+
+    return this.studentRepository.save(createStudentDto);
   }
 
   async findAll(name?: string): Promise<Student[] | Student> {

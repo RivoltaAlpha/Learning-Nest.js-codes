@@ -11,11 +11,11 @@ export class ProfilesService {
     @InjectRepository(Profile) private profileRepository: Repository<Profile>,
   ) {}
 
-  async create(createProfileDto: CreateProfileDto) {
+  async create(createProfileDto: CreateProfileDto): Promise<Profile> {
     return await this.profileRepository
       .save(createProfileDto)
       .then((profile) => {
-        return `Profile with id ${profile.id} has been created`;
+        return profile;
       })
       .catch((error) => {
         console.error('Error creating profile:', error);
@@ -37,7 +37,7 @@ export class ProfilesService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Profile | string> {
     return await this.profileRepository
       .findOneBy({ id })
       .then((profile) => {
@@ -55,16 +55,10 @@ export class ProfilesService {
   async update(
     id: number,
     updateProfileDto: UpdateProfileDto,
-  ): Promise<string> {
-    return await this.profileRepository
-      .update(id, updateProfileDto)
-      .then(() => {
-        return `Profile with id ${id} has been updated`;
-      })
-      .catch((error) => {
-        console.error('Error updating profile:', error);
-        throw new Error(`Failed to update profile with id ${id}`);
-      });
+  ): Promise<Profile | string> {
+    await this.profileRepository.update(id, updateProfileDto);
+
+    return await this.findOne(id);
   }
 
   async remove(id: number): Promise<string> {

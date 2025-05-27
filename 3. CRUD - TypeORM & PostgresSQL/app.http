@@ -19,9 +19,9 @@ POST {{url}}/profiles
 Content-Type: application/json
 
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
+  "firstName": "John2",
+  "lastName": "Doe2",
+  "email": "john2.doe@example.com",
   "role": "student"
 }
 
