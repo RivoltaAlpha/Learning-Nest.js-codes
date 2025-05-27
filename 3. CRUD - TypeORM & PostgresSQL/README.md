@@ -596,10 +596,428 @@ export class ProfilesService {
 
 ```
 
-
 ### Creating a many-to-one / one-to-many relation
 
 Let's create a many-to-one/one-to-many relation. Let's say a
 **Department ↔ Course** : Many-to-One relationship. A department can have many courses, but each course belongs to a single department.
 
-lets create a
+lets create a `course.entity.ts`
+
+> Course entity has `manyToOne()` relationship meaning its the owner of this relationship hence it will store the id of the related object
+
+```typescript
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
+import { Department } from '../../departments/entities/department.entity';
+// import { Lecture } from './lecture.entity';
+
+@Entity()
+export class Course {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  title: string;
+
+  @Column({ nullable: true })
+  description: string;
+
+  @Column('int')
+  credits: number;
+
+  @Column({ nullable: true })
+  duration: string;
+
+  @Column('date', { nullable: true })
+  startDate: string;
+
+  @Column('date', { nullable: true })
+  endDate: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date;
+
+  @ManyToOne(() => Department, (department) => department.id)
+  department: Department['id'];
+
+  // @OneToMany(() => Lecture, (lecture) => lecture.course)
+  // lectures: Lecture[]; // store only the department ID
+}
+
+```
+
+let's create the other side of the relationship that is: 
+
+`department.entity.ts`
+
+```typescript
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Course } from '../../courses/entities/course.entity';
+
+@Entity()
+export class Department {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column({ nullable: true })
+  description: string;
+
+  @Column({ nullable: true })
+  headOfDepartment: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date;
+
+    @OneToMany(() => Course, (course) => course.department) // Define the relationship with Course by specifying the inverse side
+  courses: Course[]; // Store the related courses in an array
+  // This will allow you to access all courses related to this department
+}
+
+```
+
+Remember to register/ import `DatabaseModule` and `TypeOrmModule.forFeature([Department])` in the `DepartmentsModule` 
+
+`department.module.ts`
+
+```typescript
+import { Module } from '@nestjs/common';
+import { DepartmentsService } from './departments.service';
+import { DepartmentsController } from './departments.controller';
+import { DatabaseModule } from 'src/database/database.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Department } from './entities/department.entity';
+
+@Module({
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Department])],
+  controllers: [DepartmentsController],
+  providers: [DepartmentsService],
+})
+export class DepartmentsModule {}
+
+```
+
+create the `departments.controller.ts`
+
+```typescript
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
+import { DepartmentsService } from './departments.service';
+import { CreateDepartmentDto, UpdateDepartmentDto } from './dto';
+
+@Controller('departments')
+export class DepartmentsController {
+  constructor(private readonly departmentsService: DepartmentsService) {}
+
+  @Post()
+  create(@Body() createDepartmentDto: CreateDepartmentDto) {
+    return this.departmentsService.create(createDepartmentDto);
+  }
+
+  @Get()
+  findAll(@Query('search') search?: string) {
+    return this.departmentsService.findAll(search);
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.departmentsService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDepartmentDto: UpdateDepartmentDto,
+  ) {
+    return this.departmentsService.update(id, updateDepartmentDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.departmentsService.remove(id);
+  }
+}
+
+```
+
+and `departments.service.ts`
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { CreateDepartmentDto } from './dto/create-department.dto';
+import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Department } from './entities/department.entity';
+import { Repository } from 'typeorm';
+
+@Injectable()
+export class DepartmentsService {
+  constructor(
+    @InjectRepository(Department)
+    private departmentRepository: Repository<Department>,
+  ) {}
+
+  create(createDepartmentDto: CreateDepartmentDto) {
+    return this.departmentRepository.save(createDepartmentDto);
+  }
+
+  findAll(search?: string) {
+    if (search) {
+      return this.departmentRepository.find({
+        where: [{ name: `%${search}%` }, { description: `%${search}%` }],
+        relations: ['courses'],
+      });
+    }
+    return this.departmentRepository.find({
+      relations: ['courses'],
+    });
+  }
+
+  findOne(id: number) {
+    return this.departmentRepository.findOne({
+      where: { id },
+      relations: ['courses'],
+    });
+  }
+
+  update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
+    return this.departmentRepository.update(id, updateDepartmentDto);
+  }
+
+  remove(id: number) {
+    return this.departmentRepository.delete(id);
+  }
+}
+
+```
+
+the same goes to `courses.module.ts` but this time add also register `Department` to the repository.
+
+```typescript
+import { Module } from '@nestjs/common';
+import { CoursesService } from './courses.service';
+import { CoursesController } from './courses.controller';
+import { Course } from './entities/course.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DatabaseModule } from 'src/database/database.module';
+import { Department } from '../departments/entities/department.entity';
+
+@Module({
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Course, Department])],
+  providers: [CoursesService],
+  controllers: [CoursesController],
+})
+export class CoursesModule {}
+
+```
+
+`courses.controller.ts`
+
+```typescript
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
+import { CoursesService } from './courses.service';
+import { CreateCourseDto } from './dto/create-course.dto';
+import { UpdateCourseDto } from './dto/update-course.dto';
+
+@Controller('courses')
+export class CoursesController {
+  constructor(private readonly coursesService: CoursesService) {}
+
+  // http://localhost:3000/courses
+  @Post()
+  create(@Body() createCourseDto: CreateCourseDto) {
+    return this.coursesService.create(createCourseDto);
+  }
+
+  // http://localhost:3000/courses?search=Math
+  @Get()
+  findAll(@Query('search') search?: string) {
+    return this.coursesService.findAll(search);
+  }
+
+  // http://localhost:3000/courses/1
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.coursesService.findOne(id);
+  }
+
+  // http://localhost:3000/courses/1
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCourseDto: UpdateCourseDto,
+  ) {
+    return this.coursesService.update(id, updateCourseDto);
+  }
+
+  // http://localhost:3000/courses/1
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.coursesService.remove(id);
+  }
+}
+
+```
+
+`courses.service.ts`
+
+```typescript
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateCourseDto } from './dto/create-course.dto';
+import { UpdateCourseDto } from './dto/update-course.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Course } from './entities/course.entity';
+import { Repository, Like } from 'typeorm';
+import { Department } from '../departments/entities/department.entity';
+
+@Injectable()
+export class CoursesService {
+  constructor(
+    @InjectRepository(Course) private courseRepository: Repository<Course>,
+    @InjectRepository(Department)
+    private departmentRepository: Repository<Department>,
+  ) {}
+
+  async create(createCourseDto: CreateCourseDto): Promise<Course> {
+    // Find the department
+    const department = await this.departmentRepository.findOne({
+      where: { id: createCourseDto.departmentId },
+    });
+
+    if (!department) {
+      throw new NotFoundException(
+        `Department with ID ${createCourseDto.departmentId} not found`,
+      );
+    }
+
+    // Create a new course instance
+    const newCourse = this.courseRepository.create({
+      title: createCourseDto.title,
+      description: createCourseDto.description,
+      credits: createCourseDto.credits,
+      duration: createCourseDto.duration,
+      startDate: createCourseDto.startDate,
+      endDate: createCourseDto.endDate,
+      department: createCourseDto.departmentId,
+    });
+
+    // Save the course to the database
+    return this.courseRepository.save(newCourse);
+  }
+
+  async findAll(search?: string): Promise<Course[]> {
+    if (search) {
+      return this.courseRepository.find({
+        where: [
+          { title: Like(`%${search}%`) },
+          { description: Like(`%${search}%`) },
+        ],
+        relations: ['department'],
+      });
+    }
+    return this.courseRepository.find({
+      relations: ['department'],
+    });
+  }
+
+  async findOne(id: number): Promise<Course> {
+    const course = await this.courseRepository.findOne({
+      where: { id },
+      relations: ['department'],
+    });
+
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${id} not found`);
+    }
+
+    return course;
+  }
+
+  async update(id: number, updateCourseDto: UpdateCourseDto): Promise<Course> {
+    // First check if the course exists
+    const course = await this.courseRepository.findOne({
+      where: { id },
+    });
+
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${id} not found`);
+    }
+
+    // If departmentId is provided, find the department
+    if (updateCourseDto.departmentId) {
+      const departmentId = await this.departmentRepository.findOne({
+        where: { id: updateCourseDto.departmentId },
+      });
+
+      if (!departmentId) {
+        throw new NotFoundException(
+          `Department with ID ${updateCourseDto.departmentId} not found`,
+        );
+      }
+    }
+
+    // Update the course
+    await this.courseRepository.update(id, {
+      title: updateCourseDto.title,
+      description: updateCourseDto.description,
+      credits: updateCourseDto.credits,
+      duration: updateCourseDto.duration,
+      startDate: updateCourseDto.startDate,
+      endDate: updateCourseDto.endDate,
+      department: updateCourseDto.departmentId,
+    });
+
+    // Return the updated course
+    return this.findOne(id);
+  }
+
+  async remove(id: number): Promise<void> {
+    const result = await this.courseRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Course with ID ${id} not found`);
+    }
+  }
+}
+
+```

@@ -11,5 +11,5 @@ export class CreateDepartmentDto {
 
   @IsString()
   @IsOptional()
-  head_of_department?: string; // Name or ID of the faculty head
+  headOfDepartment?: string; // Name or ID of the faculty head
 }

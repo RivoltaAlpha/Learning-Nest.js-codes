@@ -75,6 +75,48 @@ Content-Type: application/json
 DELETE {{url}}/students/1
 
 ###############################################
+# Courses Controller
+###############################################
+
+### Get all courses
+GET {{url}}/courses
+
+### Get all courses with search
+GET {{url}}/courses?search=Programming
+
+### Get course by ID
+GET {{url}}/courses/1
+
+### Create new course
+POST {{url}}/courses
+Content-Type: application/json
+
+{
+  "title": "MS Software Engineering",
+  "description": "Advanced software engineering principles",
+  "departmentId": 1,
+  "credits": 3,
+  "duration": "16 weeks",
+  "startDate": "2025-05-28",
+  "endDate": "2025-09-15"
+}
+
+### Update course
+PATCH {{url}}/courses/1
+Content-Type: application/json
+
+{
+  "title": "Advanced Web Programming",
+  "credits": 4,
+  "description": "Advanced topics in web development",
+  "duration": "14 weeks",
+  "departmentId": 1,
+}
+
+### Delete course
+DELETE {{url}}/courses/1
+
+###############################################
 # Departments Controller
 ###############################################
 
@@ -92,9 +134,8 @@ POST {{url}}/departments
 Content-Type: application/json
 
 {
-  "name": "Computer Science",
-  "description": "Department of Computer Science and Engineering",
-  "headOfDepartment": "Dr. Jane Smith"
+  "name": "Maths and Computer Science",
+  "description": "Department of Maths and Computer Science and Engineering"
 }
 
 ### Update department
@@ -150,45 +191,3 @@ Content-Type: application/json
 ### Delete lecture
 DELETE {{url}}/lectures/1
 
-###############################################
-# Courses Controller
-###############################################
-
-### Get all courses
-GET {{url}}/courses
-
-### Get all courses with search
-GET {{url}}/courses?search=Programming
-
-### Get course by ID
-GET {{url}}/courses/1
-
-### Create new course
-POST {{url}}/courses
-Content-Type: application/json
-
-{
-  "title": "Web Programming",
-  "description": "Introduction to web development",
-  "departmentId": 1,
-  "credits": 3,
-  "duration": "16 weeks",
-  "startDate": "2025-05-28",
-  "endDate": "2025-09-15"
-}
-
-### Update course
-PATCH {{url}}/courses/1
-Content-Type: application/json
-
-{
-  "title": "Advanced Web Programming",
-  "credits": 4,
-  "description": "Advanced topics in web development",
-  "duration": "14 weeks"
-}
-
-### Delete course
-DELETE {{url}}/courses/1
-
-###############################################
