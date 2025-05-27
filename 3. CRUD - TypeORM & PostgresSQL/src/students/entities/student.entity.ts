@@ -17,23 +17,23 @@ export class Student {
   id: number;
 
   @Column('date')
-  enrollment_date: string;
+  enrollmentDate: string;
 
   @Column({ nullable: true })
-  degree_program: string;
+  degreeProgram: string;
 
   @Column({ type: 'decimal', precision: 3, scale: 2, nullable: true })
   gpa: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+  createdAt: Date;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updated_at: Date;
+  updatedAt: Date;
 
   @OneToOne(() => Profile, (profile) => profile.student, {
     cascade: true,

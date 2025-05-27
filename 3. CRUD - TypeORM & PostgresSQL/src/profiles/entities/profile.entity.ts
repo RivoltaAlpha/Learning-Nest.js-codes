@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { Student } from '../../students/entities/student.entity';
 
-enum Role {
+export enum Role {
   STUDENT = 'student',
   FACULTY = 'faculty',
   ADMIN = 'admin',
@@ -20,10 +20,10 @@ export class Profile {
   id: number;
 
   @Column()
-  first_name: string;
+  firstName: string;
 
   @Column()
-  last_name: string;
+  lastName: string;
 
   @Column()
   email: string;
@@ -32,14 +32,14 @@ export class Profile {
   role: Role;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+  createdAt: Date;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updated_at: Date;
+  updatedAt: Date;
 
   @OneToOne(() => Student, (student) => student.profile)
   student: Relation<Student>;

@@ -1,29 +1,84 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Profile } from './entities/profile.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ProfilesService {
-  create(createProfileDto: CreateProfileDto) {
-    return `This action adds a new profile: ${JSON.stringify(createProfileDto)}`;
+  constructor(
+    @InjectRepository(Profile) private profileRepository: Repository<Profile>,
+  ) {}
+
+  async create(createProfileDto: CreateProfileDto) {
+    return await this.profileRepository
+      .save(createProfileDto)
+      .then((profile) => {
+        return `Profile with id ${profile.id} has been created`;
+      })
+      .catch((error) => {
+        console.error('Error creating profile:', error);
+        throw new Error('Failed to create profile');
+      });
   }
 
-  findAll(search?: string) {
-    if (search) {
-      return `This action returns profiles matching: ${search}`;
+  async findAll(email?: string) {
+    if (email) {
+      return await this.profileRepository.find({
+        where: {
+          email: email,
+        },
+        relations: ['student'], // Ensure to load the student relation
+      });
     }
-    return `This action returns all profiles`;
+    return this.profileRepository.find({
+      relations: ['student'], // Ensure to load the student relation
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} profile`;
+  async findOne(id: number) {
+    return await this.profileRepository
+      .findOneBy({ id })
+      .then((profile) => {
+        if (!profile) {
+          return `No profile found with id ${id}`;
+        }
+        return profile;
+      })
+      .catch((error) => {
+        console.error('Error finding profile:', error);
+        throw new Error(`Failed to find profile with id ${id}`);
+      });
   }
 
-  update(id: number, updateProfileDto: UpdateProfileDto) {
-    return `This action updates a #${id} profile with: ${JSON.stringify(updateProfileDto)}`;
+  async update(
+    id: number,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<string> {
+    return await this.profileRepository
+      .update(id, updateProfileDto)
+      .then(() => {
+        return `Profile with id ${id} has been updated`;
+      })
+      .catch((error) => {
+        console.error('Error updating profile:', error);
+        throw new Error(`Failed to update profile with id ${id}`);
+      });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} profile`;
+  async remove(id: number): Promise<string> {
+    return await this.profileRepository
+      .delete(id)
+      .then((result) => {
+        if (result.affected === 0) {
+          return `No profile found with id ${id}`;
+        }
+        return `Profile with id ${id} has been removed`;
+      })
+      .catch((error) => {
+        console.error('Error removing profile:', error);
+        throw new Error(`Failed to remove profile with id ${id}`);
+      });
   }
 }

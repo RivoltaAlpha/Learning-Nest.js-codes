@@ -26,6 +26,7 @@ services:
 
 volumes:
   pgdata:
+    name: school-management-db-data
     driver: local
 
 networks:

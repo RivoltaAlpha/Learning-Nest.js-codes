@@ -22,10 +22,10 @@ export class ProfilesController {
     return this.profilesService.create(createProfileDto);
   }
 
-  // http://localhost:3000/profile?search=John
+  // http://localhost:3000/profile?email=John
   @Get()
-  findAll(@Query('search') search?: string) {
-    return this.profilesService.findAll(search);
+  findAll(@Query('email') email?: string) {
+    return this.profilesService.findAll(email);
   }
 
   // http://localhost:3000/profile/1

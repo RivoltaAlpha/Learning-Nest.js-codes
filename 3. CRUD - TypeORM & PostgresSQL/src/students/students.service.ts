@@ -27,13 +27,15 @@ export class StudentsService {
       return await this.studentRepository.find({
         where: {
           profile: {
-            first_name: name,
+            firstName: name,
           },
         },
         relations: ['profile'], // Ensure to load the profile relation
       });
     }
-    return await this.studentRepository.find();
+    return await this.studentRepository.find({
+      relations: ['profile'], // Ensure to load the profile relation
+    });
   }
 
   async findOne(id: number): Promise<Student | string> {
@@ -51,8 +53,18 @@ export class StudentsService {
       });
   }
 
-  update(id: number, updateStudentDto: UpdateStudentDto) {
-    return { id, ...updateStudentDto };
+  async update(id: number, updateStudentDto: UpdateStudentDto) {
+    return await this.studentRepository
+      .update(id, updateStudentDto)
+      .then((result) => {
+        if (result.affected === 0) {
+          return `No student found with id ${id}`;
+        }
+      })
+      .catch((error) => {
+        console.error('Error updating student:', error);
+        throw new Error(`Failed to update student with id ${id}`);
+      });
   }
 
   async remove(id: number): Promise<string> {

@@ -1,5 +1,42 @@
 
 @url = http://localhost:8000
+
+###############################################
+# Profile Controller
+###############################################
+
+### Get all profiles
+GET {{url}}/profile
+
+### Get all profiles with search
+GET {{url}}/profile?email=john@gmail.com
+
+### Get profile by ID
+GET {{url}}/profile/1
+
+### Create new profile
+POST {{url}}/profile
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "role": "student"
+}
+
+### Update profile
+PATCH {{url}}/profile/1
+Content-Type: application/json
+
+{
+  "firstName": "John Smith",
+  "email": "updatejohn.doe@example.com"
+}
+
+### Delete profile
+DELETE {{url}}/profile/1
+
 ###############################################
 # Students Controller
 ###############################################
@@ -11,21 +48,21 @@ GET {{url}}/students
 GET {{url}}/students?search=John
 
 ### Get student by ID
-GET {{url}}/students/1
+GET {{url}}/students/10
 
 ### Create new student
 POST {{url}}/students
 Content-Type: application/json
 
 {
-  "first_name": "John",
-  "last_name": "Doe",
+  "firstName": "John",
+  "lastName": "Doe",
   "email": "john.doe@example.com",
-  "enrollment_date": "2025-05-27",
+  "enrollmentDate": "2025-05-27",
   "role": "student",
-  "degree_program": "BSc Computer Science",
+  "degreeProgram": "BSc Computer Science",
   "gpa": 3.5,
-  "department_id": 1
+  "departmentId": 1
 }
 
 ### Update student
@@ -61,7 +98,7 @@ Content-Type: application/json
 {
   "name": "Computer Science",
   "description": "Department of Computer Science and Engineering",
-  "head_of_department": "Dr. Jane Smith"
+  "headOfDepartment": "Dr. Jane Smith"
 }
 
 ### Update department
@@ -71,7 +108,7 @@ Content-Type: application/json
 {
   "name": "Computer Science & Engineering",
   "description": "Updated department description",
-  "head_of_department": "Dr. Robert Johnson"
+  "headOfDepartment": "Dr. Robert Johnson"
 }
 
 ### Delete department
@@ -97,9 +134,9 @@ Content-Type: application/json
 {
   "title": "Introduction to Math",
   "description": "Basic mathematical concepts",
-  "course_id": 1,
+  "courseId": 1,
   "duration": 90,
-  "lecture_date": "2025-05-28",
+  "lectureDate": "2025-05-28",
   "materials": "https://example.com/lecture-slides"
 }
 
@@ -137,11 +174,11 @@ Content-Type: application/json
 {
   "title": "Web Programming",
   "description": "Introduction to web development",
-  "department_id": 1,
+  "departmentId": 1,
   "credits": 3,
   "duration": "16 weeks",
-  "start_date": "2025-05-28",
-  "end_date": "2025-09-15"
+  "startDate": "2025-05-28",
+  "endDate": "2025-09-15"
 }
 
 ### Update course
@@ -159,38 +196,3 @@ Content-Type: application/json
 DELETE {{url}}/courses/1
 
 ###############################################
-# Profile Controller
-###############################################
-
-### Get all profiles
-GET {{url}}/profile
-
-### Get all profiles with search
-GET {{url}}/profile?search=John
-
-### Get profile by ID
-GET {{url}}/profile/1
-
-### Create new profile
-POST {{url}}/profile
-Content-Type: application/json
-
-{
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "john.doe@example.com",
-  "role": "student"
-}
-
-### Update profile
-PATCH {{url}}/profile/1
-Content-Type: application/json
-
-{
-  "fullName": "John Smith",
-  "phoneNumber": "9876543210",
-  "address": "456 Oak St, Town"
-}
-
-### Delete profile
-DELETE {{url}}/profile/1
