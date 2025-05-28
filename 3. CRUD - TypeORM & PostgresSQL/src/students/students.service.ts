@@ -25,8 +25,15 @@ export class StudentsService {
         `Profile with ID ${createStudentDto.profileId} not found`,
       );
     }
+    // Create a new Student entity with the profile relation
+    const newStudent = this.studentRepository.create({
+      enrollmentDate: createStudentDto.enrollmentDate,
+      degreeProgram: createStudentDto.degreeProgram,
+      gpa: createStudentDto.gpa,
+      profile: existingProfile,
+    });
 
-    return this.studentRepository.save(createStudentDto);
+    return this.studentRepository.save(newStudent);
   }
 
   async findAll(name?: string): Promise<Student[] | Student> {

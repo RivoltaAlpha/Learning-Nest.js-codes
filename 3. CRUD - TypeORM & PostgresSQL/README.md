@@ -121,13 +121,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToOne,
-  // ManyToMany,
-  // JoinTable,
   JoinColumn,
   Relation,
 } from 'typeorm';
 import { Profile } from '../../profiles/entities/profile.entity';
-// import { Course } from './course.entity';
 
 @Entity()
 export class Student {
@@ -153,16 +150,12 @@ export class Student {
   })
   updatedAt: Date;
 
-  @OneToOne(() => Profile, (profile) => profile.id, {
+  @OneToOne(() => Profile, (profile) => profile.student, {
     cascade: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   profile: Relation<Profile>;
-
-  //   @ManyToMany(() => Course)
-  //   @JoinTable() // Define the join table for the many-to-many relationship
-  //   courses: Course[];
 }
 
 ```
@@ -334,7 +327,7 @@ import { Repository } from 'typeorm';
 export class ProfilesService {
   constructor(
     @InjectRepository(Profile) private profileRepository: Repository<Profile>,
-  ) {}
+  ) { }
 
   async create(createProfileDto: CreateProfileDto): Promise<Profile> {
     return await this.profileRepository
@@ -344,22 +337,19 @@ export class ProfilesService {
       })
       .catch((error) => {
         console.error('Error creating profile:', error);
-        throw new Error('Failed to create profile');
+        throw new Error('Profile creation failed');
       });
   }
 
   async findAll(email?: string) {
     if (email) {
       return await this.profileRepository.find({
-        where: {
-          email: email,
-        },
-        relations: ['student'], // Ensure to load the student relation
+        where: { email },
+        relations: ['student'],
       });
     }
-    return this.profileRepository.find({
-      relations: ['student'], // Ensure to load the student relation
-    });
+
+    return await this.profileRepository.find({ relations: ['student'] });
   }
 
   async findOne(id: number): Promise<Profile | string> {
@@ -367,13 +357,13 @@ export class ProfilesService {
       .findOneBy({ id })
       .then((profile) => {
         if (!profile) {
-          return `No profile found with id ${id}`;
+          return `Profile with id ${id} not found`;
         }
         return profile;
       })
       .catch((error) => {
         console.error('Error finding profile:', error);
-        throw new Error(`Failed to find profile with id ${id}`);
+        throw new Error(`Profile with id ${id} not found`);
       });
   }
 
@@ -382,22 +372,21 @@ export class ProfilesService {
     updateProfileDto: UpdateProfileDto,
   ): Promise<Profile | string> {
     await this.profileRepository.update(id, updateProfileDto);
-
-    return await this.findOne(id);
+    return this.findOne(id);
   }
 
-  async remove(id: number): Promise<string> {
+  async remove(id: number) {
     return await this.profileRepository
       .delete(id)
       .then((result) => {
         if (result.affected === 0) {
-          return `No profile found with id ${id}`;
+          return `Profile with id ${id} not found`;
         }
-        return `Profile with id ${id} has been removed`;
+        return `Profile with id ${id} has been deleted`;
       })
       .catch((error) => {
-        console.error('Error removing profile:', error);
-        throw new Error(`Failed to remove profile with id ${id}`);
+        console.error('Error deleting profile:', error);
+        throw new Error(`Profile with id ${id} not found`);
       });
   }
 }
@@ -419,24 +408,31 @@ export class StudentsService {
   constructor(
     @InjectRepository(Student) private studentRepository: Repository<Student>,
     @InjectRepository(Profile) private profileRepository: Repository<Profile>,
-  ) {}
-
-  async create(createStudentDto: CreateStudentDto): Promise<Student> {
-    // if profile id exists, we need to check if the profile is already associated with a student
-    const existingProfile = await this.profileRepository.findOneBy({
+  ) { }
+  async create(createStudentDto: CreateStudentDto) {
+    const existProfile = await this.profileRepository.findOneBy({
       id: createStudentDto.profileId,
     });
 
-    if (!existingProfile) {
+    if (!existProfile) {
       throw new NotFoundException(
-        `Profile with ID ${createStudentDto.profileId} not found`,
+        `Profile with id ${createStudentDto.profileId} not found`,
       );
     }
 
-    return this.studentRepository.save(createStudentDto);
+    // Create a new Student entity with the profile relation
+    const newStudent = this.studentRepository.create({
+      enrollmentDate: createStudentDto.enrollmentDate,
+      degreeProgram: createStudentDto.degreeProgram,
+      gpa: createStudentDto.gpa,
+      profile: existProfile,
+    });
+
+    // Save and return the student with its profile relation
+    return await this.studentRepository.save(newStudent);
   }
 
-  async findAll(name?: string): Promise<Student[] | Student> {
+  async findAll(name?: string) {
     if (name) {
       return await this.studentRepository.find({
         where: {
@@ -444,17 +440,20 @@ export class StudentsService {
             firstName: name,
           },
         },
-        relations: ['profile'], // Ensure to load the profile relation
+        relations: { profile: true },
       });
     }
     return await this.studentRepository.find({
-      relations: ['profile'], // Ensure to load the profile relation
+      relations: { profile: true },
     });
   }
 
-  async findOne(id: number): Promise<Student | string> {
+  async findOne(id: number) {
     return await this.studentRepository
-      .findOneBy({ id })
+      .findOne({
+        where: { id },
+        relations: ['profile'],
+      })
       .then((student) => {
         if (!student) {
           return `No student found with id ${id}`;
@@ -481,7 +480,7 @@ export class StudentsService {
       });
   }
 
-  async remove(id: number): Promise<string> {
+  async remove(id: number) {
     return await this.studentRepository
       .delete(id)
       .then((result) => {
@@ -1049,6 +1048,7 @@ export class Student {
 ```
 
 Key points:
+
 - The `@ManyToMany()` decorator defines the relationship with Course entities
 - The first parameter is a function returning the Course entity class
 - The second parameter defines the inverse side of the relationship (how to reach Student from Course)
@@ -1309,6 +1309,7 @@ async removeStudentFromCourse(courseId: number, studentId: number): Promise<Cour
 Both controllers need endpoints to manage the relationship:
 
 **Student Controller**:
+
 ```typescript
 // http://localhost:8000/students/1/courses
 @Get(':id/courses')
@@ -1345,6 +1346,7 @@ updateStudentCourses(
 ```
 
 **Course Controller**:
+
 ```typescript
 // http://localhost:3000/courses/1/students
 @Get(':id/students')
@@ -1374,20 +1376,16 @@ removeStudentFromCourse(
 ### Important Notes About Many-to-Many Relationships:
 
 1. **Join Table**: The `@JoinTable()` decorator must be specified on one (and only one) side of the relationship. This decorator creates the join table in the database.
-
 2. **Synchronization**: When working with many-to-many relationships, TypeORM automatically synchronizes both sides of the relationship. For example, if you enroll a student in a course from the student side, the course's students array will also be updated.
-
 3. **Eager Loading**: By default, relationships are not eagerly loaded. You must explicitly include them using the `relations` option in your query or set `eager: true` in the relationship decorator.
-
 4. **Cascade Options**: You can specify cascade options to automatically handle related entities:
+
    ```typescript
    @ManyToMany(() => Course, (course) => course.students, {
      cascade: true, // or ['insert', 'update', 'remove']
    })
    ```
-
 5. **Database Impact**: Many-to-many relationships require a join table, which can impact performance for large datasets. For very large systems, consider optimizing your queries or using a different relationship pattern.
-
 6. **Bidirectional vs. Unidirectional**: The examples show a bidirectional relationship, but you can also create unidirectional many-to-many relationships by omitting the second parameter in the `@ManyToMany()` decorator.
 
 By following this approach, you create a clean, maintainable codebase for managing complex relationships between students and courses.

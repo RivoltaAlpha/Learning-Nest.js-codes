@@ -35,7 +35,7 @@ export class Student {
   })
   updatedAt: Date;
 
-  @OneToOne(() => Profile, (profile) => profile.id, {
+  @OneToOne(() => Profile, (profile) => profile.student, {
     cascade: true,
     onDelete: 'CASCADE',
   })
