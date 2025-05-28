@@ -941,8 +941,8 @@ export class CoursesService {
     if (search) {
       return this.courseRepository.find({
         where: [
-          { title: Like(`%${search}%`) },
-          { description: Like(`%${search}%`) },
+          { title: `%${search}%` },
+          { description: `%${search}%` },
         ],
         relations: ['department'],
       });
