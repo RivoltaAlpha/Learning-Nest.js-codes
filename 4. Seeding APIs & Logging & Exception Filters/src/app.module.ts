@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { CoursesModule } from './courses/courses.module';
 import { SeedModule } from './seed/seed.module';
+import { LogsModule } from './logs/logs.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SeedModule } from './seed/seed.module';
     DepartmentsModule,
     CoursesModule,
     SeedModule,
+    LogsModule,
   ],
   controllers: [],
   providers: [],
