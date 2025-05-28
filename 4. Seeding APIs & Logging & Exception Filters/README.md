@@ -323,3 +323,284 @@ curl -X POST http://localhost:8000/seed
 Or using tools like Postman or Insomnia to make a POST request to `/seed`.
 
 This seeding implementation provides a solid foundation for populating your School Management database with realistic data for development and testing purposes.
+
+## Logging System Implementation
+
+The application implements a comprehensive logging system that captures request/response information and errors for monitoring and debugging purposes.
+
+### Logger Middleware
+
+The logger middleware captures all HTTP requests and responses, providing detailed timing and status information:
+
+```typescript
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+
+// Middleware to log requests
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    const startTime = Date.now();
+
+    // Log request details
+    console.log(
+      `[\x1b[33m${new Date().toISOString()}\x1b[0m] \x1b[32m${req.method}\x1b[0m ${req.path}`,
+    );
+
+    // Capture the original end function
+    const originalEnd = res.end.bind(res) as Response['end'];
+
+    // Override the end function to log the status code
+    res.end = function (...args: Parameters<Response['end']>): Response {
+      const duration = Date.now() - startTime;
+      console.log(
+        `[\x1b[33m${new Date().toISOString()}\x1b[0m] \x1b[32m${req.method}\x1b[0m ${req.path} - ${res.statusCode} (\x1b[33m${duration}ms\x1b[0m)`,
+      );
+
+      // Call the original end function
+      return originalEnd.apply(res, args) as Response;
+    } as Response['end'];
+
+    next();
+  }
+}
+```
+
+### Logs Service
+
+The `LogsService` handles file-based logging for errors and important events:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { promises as fsPromises, existsSync } from 'fs';
+import * as path from 'path';
+
+@Injectable()
+export class LogsService {
+  async logToFile(entry: string, ip?: string) {
+    const formattedEntry = `
+ ${Intl.DateTimeFormat('en-US', {
+   dateStyle: 'short',
+   timeStyle: 'short',
+   timeZone: 'Africa/Nairobi',
+ }).format(new Date())} - IP: ${ip || 'unknown'} - ${entry}\n`;
+
+    try {
+      const logsPath = path.join(__dirname, '..', '..', 'applogs');
+      if (!existsSync(logsPath)) {
+        await fsPromises.mkdir(logsPath);
+      }
+      await fsPromises.appendFile(
+        path.join(logsPath, 'myLogFile.log'),
+        formattedEntry,
+      );
+    } catch (e) {
+      if (e instanceof Error) console.error(e.message);
+    }
+  }
+}
+```
+
+### Logs Module
+
+The logs module makes the logging service available throughout the application:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { LogsService } from './logs.service';
+
+@Module({
+  providers: [LogsService],
+})
+export class LogsModule {}
+```
+
+### Configuring Logger Middleware
+
+The logger middleware is configured in the `AppModule` to monitor specific routes:
+
+```typescript
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('students', 'profiles', 'courses', 'lectures', 'departments');
+  }
+}
+```
+
+### Logging Features
+
+1. **Console Logging**: All HTTP requests are logged to the console with colored output showing:
+   * Timestamp
+   * HTTP method
+   * Request path
+   * Response status code
+   * Request duration in milliseconds
+
+2. **File Logging**: Errors and important events are logged to files in the `applogs` directory:
+   * Automatic directory creation if it doesn't exist
+   * Formatted timestamps with timezone support
+   * Client IP address tracking
+   * Error message details
+
+3. **Color-coded Output**: Console logs use ANSI color codes for better readability:
+   * Yellow for timestamps
+   * Green for HTTP methods
+   * Duration in yellow
+
+## Exception Filters Implementation
+
+The application uses a global exception filter to handle all types of errors in a standardized way, providing consistent error responses and comprehensive error logging.
+
+### All Exceptions Filter
+
+The `AllExceptionsFilter` extends NestJS's `BaseExceptionFilter` to catch all exceptions:
+
+```typescript
+import {
+  Catch,
+  HttpException,
+  HttpStatus,
+  ArgumentsHost,
+} from '@nestjs/common';
+import { BaseExceptionFilter } from '@nestjs/core';
+import { LogsService } from './logs/logs.service';
+import { Request, Response } from 'express';
+
+// Interface for standardized error response
+interface MyResponseObj {
+  statusCode: number;
+  timestamp: string;
+  path: string;
+  response: string | object;
+}
+
+@Catch()
+export class AllExceptionsFilter extends BaseExceptionFilter {
+  private readonly logs = new LogsService();
+
+  private getClientIp(request: Request): string {
+    // Get IP from X-Forwarded-For header or fall back to connection remote address
+    const forwardedFor = request.headers['x-forwarded-for'];
+    if (forwardedFor) {
+      // If it's an array or comma-separated string, get the first IP
+      return Array.isArray(forwardedFor)
+        ? forwardedFor[0]
+        : forwardedFor.split(',')[0].trim();
+    }
+    return request.ip || 'unknown';
+  }
+
+  override catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+    const clientIp = this.getClientIp(request);
+
+    const myResponseObj: MyResponseObj = {
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      response: '',
+    };
+
+    if (exception instanceof HttpException) {
+      myResponseObj.statusCode = exception.getStatus();
+      myResponseObj.response = exception.getResponse();
+    } else if (exception instanceof Error) {
+      myResponseObj.response = exception.message;
+    } else {
+      myResponseObj.response = 'Internal Server Error';
+    }
+
+    response.status(myResponseObj.statusCode).json(myResponseObj);
+
+    const logMessage =
+      typeof myResponseObj.response === 'string'
+        ? myResponseObj.response
+        : JSON.stringify(myResponseObj.response);
+    
+    // Log the error with client IP and path
+    void this.logs.logToFile(
+      `ERROR: ${logMessage} - Path: ${request.url}`,
+      clientIp,
+    );
+  }
+}
+```
+
+### Registering the Global Exception Filter
+
+The exception filter is registered globally in the `main.ts` file:
+
+```typescript
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { AllExceptionsFilter } from './http-exception.filter';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  // Register the global exception filter
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+
+  const configService = app.get(ConfigService);
+  const PORT = configService.getOrThrow<number>('PORT');
+
+  await app.listen(PORT);
+}
+bootstrap();
+```
+
+### Exception Filter Features
+
+1. **Standardized Error Response**: All errors return a consistent JSON structure:
+
+   ```json
+   {
+     "statusCode": 404,
+     "timestamp": "2024-01-15T10:30:00.000Z",
+     "path": "/api/students/999",
+     "response": "Student not found"
+   }
+   ```
+
+2. **Client IP Tracking**: Extracts client IP addresses from:
+   * `X-Forwarded-For` header (for proxy/load balancer scenarios)
+   * Direct connection IP
+   * Falls back to 'unknown' if IP cannot be determined
+
+3. **Comprehensive Error Handling**: Handles different types of exceptions:
+   * `HttpException`: Uses the exception's status code and response
+   * `Error`: Uses the error message
+   * Unknown exceptions: Returns generic "Internal Server Error"
+
+4. **Error Logging**: All caught exceptions are logged to files with:
+   * Error message details
+   * Request path where the error occurred
+   * Client IP address
+   * Formatted timestamp
+
+### Benefits of This Implementation
+
+1. **Monitoring & Debugging**: Comprehensive logging helps identify issues quickly
+2. **Security**: IP tracking helps identify potential security threats
+3. **Consistency**: Standardized error responses improve API reliability
+4. **Maintenance**: Centralized error handling reduces code duplication
+5. **Performance Tracking**: Request timing helps identify performance bottlenecks
+
+### Log File Structure
+
+Error logs are stored in the `applogs/myLogFile.log` file with the following format:
+
+```text
+12/15/2024, 3:30 PM - IP: 192.168.1.100 - ERROR: Student not found - Path: /api/students/999
+12/15/2024, 3:31 PM - IP: 10.0.0.50 - ERROR: Validation failed - Path: /api/students
+```
+
+This comprehensive logging and exception handling system ensures robust error management and provides valuable insights for application monitoring and debugging.
