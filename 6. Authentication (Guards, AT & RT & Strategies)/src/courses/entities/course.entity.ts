@@ -4,10 +4,12 @@ import {
   Column,
   ManyToOne,
   ManyToMany,
+  OneToMany,
   Relation,
 } from 'typeorm';
 import { Department } from '../../departments/entities/department.entity';
 import { Student } from '../../students/entities/student.entity';
+import { Lecturer } from '../../lecturer/entities/lecturer.entity';
 
 @Entity()
 export class Course {
@@ -47,4 +49,7 @@ export class Course {
 
   @ManyToMany(() => Student, (student) => student.courses)
   students: Relation<Student[]>;
+
+  @OneToMany(() => Lecturer, (lecture) => lecture.courses)
+  lecturers: Relation<Lecturer[]>;
 }

@@ -11,6 +11,8 @@ import { LogsModule } from './logs/logs.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { createKeyv, Keyv } from '@keyv/redis';
 import { CacheableMemory } from 'cacheable';
+import { LecturerModule } from './lecturer/lecturer.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { CacheableMemory } from 'cacheable';
     CoursesModule,
     SeedModule,
     LogsModule,
+    LecturerModule,
     CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -41,6 +44,7 @@ import { CacheableMemory } from 'cacheable';
         };
       },
     }),
+    AuthModule,
   ],
   controllers: [],
   providers: [

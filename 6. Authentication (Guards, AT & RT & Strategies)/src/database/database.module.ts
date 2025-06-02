@@ -17,7 +17,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
         synchronize: configService.getOrThrow<boolean>('DB_SYNC', true),
         logging: configService.getOrThrow<boolean>('DB_LOGGING', false),
-        migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
       }),
       inject: [ConfigService],
     }),

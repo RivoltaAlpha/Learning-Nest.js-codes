@@ -6,6 +6,7 @@ import {
   Relation,
 } from 'typeorm';
 import { Student } from '../../students/entities/student.entity';
+import { Lecturer } from '../../lecturer/entities/lecturer.entity';
 
 export enum Role {
   STUDENT = 'student',
@@ -28,6 +29,9 @@ export class Profile {
   @Column()
   email: string;
 
+  @Column()
+  password: string;
+
   @Column({ type: 'enum', enum: Role, default: Role.GUEST })
   role: Role;
 
@@ -43,4 +47,7 @@ export class Profile {
 
   @OneToOne(() => Student, (student) => student.profile)
   student: Relation<Student>;
+
+  @OneToOne(() => Lecturer, (lecturer) => lecturer.profile)
+  lecturer: Relation<Lecturer>;
 }

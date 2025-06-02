@@ -1,38 +1,5 @@
 @url = http://localhost:8000
 
-###############################################
-# Cache
-###############################################
-
-### Set a cached value with a key and TTL (time to live)
-POST {{url}}/cache
-Content-Type: application/json
-
-{
-  "key": "example_key",
-  "value": "example_value",
-  "ttl": 30
-}
-
-### Set a cached value without TTL
-POST {{url}}/cache
-Content-Type: application/json
-
-{
-  "key": "example_key_2",
-  "value": "example_value_2"
-}
-
-### get cached value
-GET {{url}}/cache/example_key 
-
-### delete cached value
-DELETE {{url}}/cache/example_key_2
-
-
-
-
-
 
 ###############################################
 # Seed
@@ -53,7 +20,7 @@ GET {{url}}/profiles?email=john@gmail.com
 ### Get profile by ID
 GET {{url}}/profiles/1
 
-### Create new profile
+### Create new a new student profile
 POST {{url}}/profiles
 Content-Type: application/json
 
@@ -61,7 +28,20 @@ Content-Type: application/json
   "firstName": "John2",
   "lastName": "Doe2",
   "email": "john2.doe@example.com",
+  "password": "password123",
   "role": "student"
+}
+
+### Create new a new lecturer profile
+POST {{url}}/profiles
+Content-Type: application/json
+
+{
+  "firstName": "John2",
+  "lastName": "Doe2",
+  "email": "john2.doe@example.com",
+  "password": "password123",
+  "role": "faculty"
 }
 
 ### Update profile
@@ -191,11 +171,66 @@ Content-Type: application/json
 DELETE {{url}}/departments/1
 
 ###############################################
+# Lecturers Controller
+###############################################
+
+### Get all lecturers
+GET {{url}}/lecturer
+
+### Get all lecturers with search by name
+GET {{url}}/lecturer?name=John
+
+### Get lecturer by ID
+GET {{url}}/lecturer/1
+
+### Create new lecturer
+POST {{url}}/lecturer
+Content-Type: application/json
+
+{
+  "employeeId": "EMP001",
+  "specialization": "Computer Science",
+  "bio": "Experienced professor with 10 years of teaching experience",
+  "officeLocation": "Room 205, CS Building",
+  "phoneNumber": "+1234567890",
+  "profileId": 31
+}
+
+### Update lecturer
+PATCH {{url}}/lecturer/1
+Content-Type: application/json
+
+{
+  "specialization": "Advanced Computer Science",
+  "bio": "Senior professor with expertise in machine learning and AI",
+  "officeLocation": "Room 301, CS Building",
+  "phoneNumber": "+1234567891"
+}
+
+### Delete lecturer
+DELETE {{url}}/lecturer/1
+
+### Get all courses for a lecturer
+GET {{url}}/lecturer/1/courses
+
+### Assign a lecturer to a course
+POST {{url}}/lecturer/1/courses/1
+
+### Unassign a lecturer from a course
+DELETE {{url}}/lecturer/1/courses/1
+
+### Update lecturer's courses (batch assignment)
+PATCH {{url}}/lecturer/1/courses
+Content-Type: application/json
+
+[1, 2, 3]
+
+###############################################
 # Lectures Controller
 ###############################################
 
 ### Get all lectures
-GET {{url}}/lectures
+GET {{url}}/lecturer
 
 ### Get all lectures with search
 GET {{url}}/lectures?search=Math

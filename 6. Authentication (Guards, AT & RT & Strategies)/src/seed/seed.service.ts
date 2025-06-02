@@ -7,6 +7,7 @@ import { Student } from '../students/entities/student.entity';
 import { Profile, Role } from '../profiles/entities/profile.entity';
 import { Department } from '../departments/entities/department.entity';
 import { Course } from '../courses/entities/course.entity';
+import { Lecturer } from '../lecturer/entities/lecturer.entity';
 
 @Injectable()
 export class SeedService {
@@ -21,6 +22,8 @@ export class SeedService {
     private readonly departmentRepository: Repository<Department>,
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
+    @InjectRepository(Lecturer)
+    private readonly lecturerRepository: Repository<Lecturer>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -38,8 +41,10 @@ export class SeedService {
 
       try {
         // Order matters due to foreign key relationships
-        await queryRunner.query('DELETE FROM student_courses_course'); // Delete from junction table first
+        await queryRunner.query('DELETE FROM lecturer_courses_course'); // Delete from lecturer-course junction table first
+        await queryRunner.query('DELETE FROM student_courses_course'); // Delete from student-course junction table
         await queryRunner.query('DELETE FROM student'); // Student has FK to Profile
+        await queryRunner.query('DELETE FROM lecturer'); // Lecturer has FK to Profile
         await queryRunner.query('DELETE FROM profile');
         await queryRunner.query('DELETE FROM course'); // Course has FK to Department
         await queryRunner.query('DELETE FROM department');
@@ -125,11 +130,91 @@ export class SeedService {
       }
       this.logger.log(`Created ${courses.length} courses`);
 
-      // Seed profiles and students
+      // Seed lecturers - Changed to 10 lecturers as requested
+      this.logger.log('Seeding lecturers...');
+      const lecturers: Lecturer[] = [];
+      const specializations = [
+        'Computer Science',
+        'Software Engineering',
+        'Data Science',
+        'Machine Learning',
+        'Mathematics',
+        'Physics',
+        'Chemistry',
+        'Biology',
+        'Psychology',
+        'Business Administration',
+        'Marketing',
+        'Finance',
+        'Electrical Engineering',
+        'Mechanical Engineering',
+        'Civil Engineering',
+      ];
+
+      for (let i = 0; i < 10; i++) {
+        // Create profile for lecturer
+        const profile = new Profile();
+        profile.firstName = faker.person.firstName();
+        profile.lastName = faker.person.lastName();
+        profile.email = faker.internet.email({
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          provider: 'university.edu',
+        });
+        profile.password = 'password'; // Default password for seeding
+        profile.role = Role.FACULTY;
+
+        // Save the profile
+        const savedProfile = await this.profileRepository.save(profile);
+
+        // Create lecturer linked to the profile
+        const lecturer = new Lecturer();
+        lecturer.employeeId = `EMP${faker.number.int({ min: 1000, max: 9999 })}`;
+        lecturer.specialization =
+          specializations[
+            faker.number.int({ min: 0, max: specializations.length - 1 })
+          ];
+        lecturer.bio = faker.lorem.paragraph();
+        lecturer.officeLocation = `Room ${faker.number.int({ min: 100, max: 999 })}`;
+        lecturer.phoneNumber = faker.phone.number();
+
+        // Link profile to lecturer
+        lecturer.profile = savedProfile;
+
+        // Save the lecturer
+        const savedLecturer = await this.lecturerRepository.save(lecturer);
+
+        // Assign random courses to the lecturer (between 2 and 5 courses)
+        const numberOfCourses = faker.number.int({ min: 2, max: 5 });
+        const lecturerCourses: Course[] = [];
+
+        const availableCourses = [...courses]; // Copy courses to avoid modifying the original array
+
+        for (let j = 0; j < numberOfCourses; j++) {
+          if (availableCourses.length === 0) break;
+
+          const randomIndex = faker.number.int({
+            min: 0,
+            max: availableCourses.length - 1,
+          });
+          const selectedCourse = availableCourses.splice(randomIndex, 1)[0]; // Remove the selected course
+
+          lecturerCourses.push(selectedCourse);
+        }
+
+        // Update the lecturer's courses
+        savedLecturer.courses = lecturerCourses;
+        await this.lecturerRepository.save(savedLecturer);
+
+        lecturers.push(savedLecturer);
+      }
+      this.logger.log(`Created ${lecturers.length} lecturers with profiles`);
+
+      // Seed profiles and students - Already 20 students as requested
       this.logger.log('Seeding profiles and students...');
       const students: Student[] = [];
 
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 20; i++) {
         // Create profile
         const profile = new Profile();
         profile.firstName = faker.person.firstName();
@@ -139,7 +224,8 @@ export class SeedService {
           lastName: profile.lastName,
           provider: 'university.edu',
         });
-        profile.role = Role.STUDENT;
+        profile.password = 'password'; // Default password for seeding
+        profile.role = Role.STUDENT; // Fixed: was incomplete
 
         // Save the profile
         const savedProfile = await this.profileRepository.save(profile);

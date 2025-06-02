@@ -14,6 +14,10 @@ export class CreateProfileDto {
   email: string;
 
   @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @IsString()
   @IsEnum(Role, {
     message:
       'Role must be one of the following: student, faculty, administrator',
