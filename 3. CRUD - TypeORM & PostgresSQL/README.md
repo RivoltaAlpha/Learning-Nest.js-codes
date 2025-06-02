@@ -1,6 +1,6 @@
 # School Management
 
-please check the [api design](./API Design.md)
+Please check the: [API Design](./API%20Design.md)
 
 ## ENV Configuration
 

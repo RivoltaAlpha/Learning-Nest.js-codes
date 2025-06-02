@@ -11,7 +11,6 @@ import { LogsModule } from './logs/logs.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { createKeyv, Keyv } from '@keyv/redis';
 import { CacheableMemory } from 'cacheable';
-import { CacheMeModule } from './cache-me/cache-me.module';
 
 @Module({
   imports: [
@@ -42,7 +41,6 @@ import { CacheMeModule } from './cache-me/cache-me.module';
         };
       },
     }),
-    CacheMeModule,
   ],
   controllers: [],
   providers: [
