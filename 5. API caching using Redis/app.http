@@ -1,9 +1,42 @@
 @url = http://localhost:8000
 
 ###############################################
-# Seed
+# Cache
 ###############################################
 
+### Set a cached value with a key and TTL (time to live)
+POST {{url}}/cache
+Content-Type: application/json
+
+{
+  "key": "example_key",
+  "value": "example_value",
+  "ttl": 30
+}
+
+### Set a cached value without TTL
+POST {{url}}/cache
+Content-Type: application/json
+
+{
+  "key": "example_key_2",
+  "value": "example_value_2"
+}
+
+### get cached value
+GET {{url}}/cache/example_key 
+
+### delete cached value
+DELETE {{url}}/cache/example_key_2
+
+
+
+
+
+
+###############################################
+# Seed
+###############################################
 POST {{url}}/seed
 
 ###############################################
