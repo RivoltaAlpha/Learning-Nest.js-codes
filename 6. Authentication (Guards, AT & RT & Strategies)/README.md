@@ -29,6 +29,7 @@ To set up authentication in NestJS, you'll need to install the following package
 ```bash
 pnpm add @nestjs/passport passport passport-jwt
 pnpm add @nestjs/jwt
+pnpm add -D @types/passport-jwt
 pnpm add bcrypt
 ```
 
@@ -122,7 +123,7 @@ export class RfStrategy extends PassportStrategy(Strategy, 'jwt-rt') {
 
 > Please remember to register both strategies in the `auth.module.ts` as providers
 >
->  `providers: [AuthService, AtStrategy, RfStrategy],`
+> `providers: [AuthService, AtStrategy, RfStrategy],`
 
 ### Guards
 
