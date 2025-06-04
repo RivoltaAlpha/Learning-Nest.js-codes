@@ -27,7 +27,7 @@ interface RequestWithUser extends Request {
 
 @Controller('profiles')
 export class ProfilesController {
-  constructor(private readonly profilesService: ProfilesService) { }
+  constructor(private readonly profilesService: ProfilesService) {}
 
   @Public()
   @Post()

@@ -27,7 +27,7 @@ interface RequestWithUser extends Request {
 
 @Controller('lecturer')
 export class LecturerController {
-  constructor(private readonly lecturerService: LecturerService) { }
+  constructor(private readonly lecturerService: LecturerService) {}
 
   @Public()
   @Post()

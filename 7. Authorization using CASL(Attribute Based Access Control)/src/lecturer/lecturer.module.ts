@@ -6,11 +6,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Lecturer } from './entities/lecturer.entity';
 import { Profile } from 'src/profiles/entities/profile.entity';
 import { Course } from 'src/courses/entities/course.entity';
+import { CaslModule } from '../casl/casl.module';
 
 @Module({
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([Lecturer, Profile, Course]),
+    CaslModule,
   ],
   controllers: [LecturerController],
   providers: [LecturerService],

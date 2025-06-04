@@ -1,6 +1,37 @@
 @url = http://localhost:8000
 
 ###############################################
+# AUTHorization
+###############################################
+
+@AccessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoia2V2aW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NDkwMTg5ODQsImV4cCI6MTc0OTAxOTg4NH0.4hyCQd_76sBPy_LNdTOSm48RcGWUuF145OE7MW9Wrf8
+@RefreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImlhdCI6MTc0ODk4NzQ4MSwiZXhwIjoxNzQ5NTkyMjgxfQ.p4cspKJcOLJRoYnlvqDpYyLgAwrpChs0hwz_0p2I0Os
+###
+### Create new department
+POST {{url}}/departments
+Content-Type: application/json
+Authorization: Bearer {{AccessToken}}
+
+{
+  "name": "Maths and Computer Science",
+  "description": "Department of Maths and Computer Science and Engineering"
+}
+### Create new course
+POST {{url}}/courses
+Content-Type: application/json
+Authorization: Bearer {{AccessToken}}
+
+{
+  "title": "MS Software Engineering2",
+  "description": "Advanced software engineering principles2",
+  "departmentId": 1,
+  "credits": 3,
+  "duration": "16 weeks",
+  "startDate": "2025-05-28",
+  "endDate": "2025-09-15"
+}
+
+###############################################
 # AUTHENTICATION
 ###############################################
 ### LOGIN a new user
@@ -8,20 +39,21 @@ POST {{url}}/auth/signin
 Content-Type: application/json
 
 {
-  "email": "john@example.com",
+  "email": "kevin@example.com",
   "password": "password"
 }
 ### REGISTER a new user
 ### Create new a new student profile
 POST {{url}}/profiles
 Content-Type: application/json
+Authorization: Bearer {{AccessToken}}
 
 {
-  "firstName": "John",
+  "firstName": "kevin",
   "lastName": "Doe",
-  "email": "john@example.com",
+  "email": "kevin@example.com",
   "password": "password",
-  "role": "student"
+  "role": "admin"
 }
 
 ### Create new a new lecturer profile
@@ -42,8 +74,6 @@ GET {{url}}/auth/signout/1
 ###############################################
 # Authorized requests
 ###############################################
-@AccessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImlhdCI6MTc0ODk4NjIxMiwiZXhwIjoxNzQ4OTg3MTEyfQ.B2rEfYrCu3A7v9NslMJEg_GU6eDKIDrL6neLpciMMe4
-@RefreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImlhdCI6MTc0ODk4NzQ4MSwiZXhwIjoxNzQ5NTkyMjgxfQ.p4cspKJcOLJRoYnlvqDpYyLgAwrpChs0hwz_0p2I0Os
 ### Get all profiles
 GET {{url}}/profiles
 Authorization: Bearer {{AccessToken}}
