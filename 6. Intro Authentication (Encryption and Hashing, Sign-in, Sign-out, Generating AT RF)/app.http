@@ -1,0 +1,488 @@
+@url = http://localhost:8000
+
+###############################################
+# AUTHENTICATION
+###############################################
+### LOGIN a new user
+POST {{url}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password"
+}
+### REGISTER a new user
+### Create new a new student profile
+POST {{url}}/profiles
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "password": "password",
+  "role": "student"
+}
+
+### Create new a new lecturer profile
+POST {{url}}/profiles
+Content-Type: application/json
+
+{
+  "firstName": "jane",
+  "lastName": "doe",
+  "email": "janedoe@example.com",
+  "password": "password",
+  "role": "faculty"
+}
+
+### signout
+GET {{url}}/auth/signout/1
+
+###############################################
+# Authorized requests
+###############################################
+@AccessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImlhdCI6MTc0ODk4NjIxMiwiZXhwIjoxNzQ4OTg3MTEyfQ.B2rEfYrCu3A7v9NslMJEg_GU6eDKIDrL6neLpciMMe4
+@RefreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImlhdCI6MTc0ODk4NzQ4MSwiZXhwIjoxNzQ5NTkyMjgxfQ.p4cspKJcOLJRoYnlvqDpYyLgAwrpChs0hwz_0p2I0Os
+### Get all profiles
+GET {{url}}/profiles
+Authorization: Bearer {{AccessToken}}
+
+###
+### Get all students
+GET {{url}}/students
+Authorization: Bearer {{AccessToken}}
+
+### refresh token
+GET {{url}}/auth/refresh?id=1
+Authorization: Bearer {{RefreshToken}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###############################################
+# Seed
+###############################################
+POST {{url}}/seed
+
+###############################################
+# Profile Controller
+###############################################
+
+
+### Get all profiles
+GET {{url}}/profiles
+
+### Get all profiles with search
+GET {{url}}/profiles?email=john@gmail.com
+
+### Get profile by ID
+GET {{url}}/profiles/1
+
+
+
+### Update profile
+PATCH {{url}}/profiles/2
+Content-Type: application/json
+
+{
+  "id": 1,
+  "firstName": "John Smith",
+  "email": "updatejohn.doe@example.com"
+}
+
+### Delete profile
+DELETE {{url}}/profiles/1
+
+###############################################
+# Students Controller
+###############################################
+
+### Get all students
+GET {{url}}/students
+
+### Get all students with search
+GET {{url}}/students?search=John
+
+### Get student by ID
+GET {{url}}/students/10
+
+### Create new student
+POST {{url}}/students
+Content-Type: application/json
+
+{
+  "enrollmentDate": "2025-05-27",
+  "role": "student",
+  "degreeProgram": "BSc Computer Science",
+  "gpa": 3.5,
+}
+
+### Update student
+PATCH {{url}}/students/1
+Content-Type: application/json
+
+{
+  "degreeProgram": "MSc Computer Science",
+  "profile": 1
+}
+
+### Delete student
+DELETE {{url}}/students/1
+
+###############################################
+# Courses Controller
+###############################################
+
+### Get all courses
+GET {{url}}/courses
+
+### Get all courses with search
+GET {{url}}/courses?search=Programming
+
+### Get course by ID
+GET {{url}}/courses/1
+
+### Create new course
+POST {{url}}/courses
+Content-Type: application/json
+
+{
+  "title": "MS Software Engineering",
+  "description": "Advanced software engineering principles",
+  "departmentId": 1,
+  "credits": 3,
+  "duration": "16 weeks",
+  "startDate": "2025-05-28",
+  "endDate": "2025-09-15"
+}
+
+### Update course
+PATCH {{url}}/courses/1
+Content-Type: application/json
+
+{
+  "title": "Advanced Web Programming",
+  "credits": 4,
+  "description": "Advanced topics in web development",
+  "duration": "14 weeks",
+  "departmentId": 1,
+}
+
+### Delete course
+DELETE {{url}}/courses/1
+
+###############################################
+# Departments Controller
+###############################################
+
+### Get all departments
+GET {{url}}/departments
+
+### Get all departments with search
+GET {{url}}/departments?search=Science
+
+### Get department by ID
+GET {{url}}/departments/1
+
+### Create new department
+POST {{url}}/departments
+Content-Type: application/json
+
+{
+  "name": "Maths and Computer Science",
+  "description": "Department of Maths and Computer Science and Engineering"
+}
+
+### Update department
+PATCH {{url}}/departments/1
+Content-Type: application/json
+
+{
+  "name": "Computer Science & Engineering",
+  "description": "Updated department description",
+  "headOfDepartment": "Dr. Robert Johnson"
+}
+
+### Delete department
+DELETE {{url}}/departments/1
+
+###############################################
+# Lecturers Controller
+###############################################
+
+### Get all lecturers
+GET {{url}}/lecturer
+
+### Get all lecturers with search by name
+GET {{url}}/lecturer?name=John
+
+### Get lecturer by ID
+GET {{url}}/lecturer/1
+
+### Create new lecturer
+POST {{url}}/lecturer
+Content-Type: application/json
+
+{
+  "employeeId": "EMP001",
+  "specialization": "Computer Science",
+  "bio": "Experienced professor with 10 years of teaching experience",
+  "officeLocation": "Room 205, CS Building",
+  "phoneNumber": "+1234567890",
+  "profileId": 31
+}
+
+### Update lecturer
+PATCH {{url}}/lecturer/1
+Content-Type: application/json
+
+{
+  "specialization": "Advanced Computer Science",
+  "bio": "Senior professor with expertise in machine learning and AI",
+  "officeLocation": "Room 301, CS Building",
+  "phoneNumber": "+1234567891"
+}
+
+### Delete lecturer
+DELETE {{url}}/lecturer/1
+
+### Get all courses for a lecturer
+GET {{url}}/lecturer/1/courses
+
+### Assign a lecturer to a course
+POST {{url}}/lecturer/1/courses/1
+
+### Unassign a lecturer from a course
+DELETE {{url}}/lecturer/1/courses/1
+
+### Update lecturer's courses (batch assignment)
+PATCH {{url}}/lecturer/1/courses
+Content-Type: application/json
+
+[1, 2, 3]
+
+###############################################
+# Lectures Controller
+###############################################
+
+### Get all lectures
+GET {{url}}/lecturer
+
+### Get all lectures with search
+GET {{url}}/lectures?search=Math
+
+### Get lecture by ID
+GET {{url}}/lectures/1
+
+### Create new lecture
+POST {{url}}/lectures
+Content-Type: application/json
+
+{
+  "title": "Introduction to Math",
+  "description": "Basic mathematical concepts",
+  "courseId": 1,
+  "duration": 90,
+  "lectureDate": "2025-05-28",
+  "materials": "https://example.com/lecture-slides"
+}
+
+### Update lecture
+PATCH {{url}}/lectures/1
+Content-Type: application/json
+
+{
+  "title": "Advanced Mathematics",
+  "duration": 120,
+  "description": "Advanced topics in calculus and linear algebra",
+  "materials": "https://example.com/advanced-math-slides"
+}
+
+### Delete lecture
+DELETE {{url}}/lectures/1
+
+###############################################
+# Course Enrollment - Many-to-Many Relationship Tests
+###############################################
+
+### Create a profile for testing
+POST {{url}}/profiles
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "email": "jane.smith@example.com",
+  "role": "student"
+}
+
+### Create a student linked to the profile
+POST {{url}}/students
+Content-Type: application/json
+
+{
+  "enrollmentDate": "2025-01-15",
+  "degreeProgram": "MSc Computer Science",
+  "gpa": 3.8,
+  "profileId": 4
+}
+
+### Create a department for testing
+POST {{url}}/departments
+Content-Type: application/json
+
+{
+  "name": "Computer Science",
+  "description": "Department of Computer Science and Engineering"
+}
+
+### Create courses for testing
+POST {{url}}/courses
+Content-Type: application/json
+
+{
+  "title": "Introduction to Programming",
+  "description": "Fundamentals of programming concepts",
+  "departmentId": 3,
+  "credits": 3,
+  "duration": "16 weeks",
+  "startDate": "2025-06-01",
+  "endDate": "2025-09-30"
+}
+
+### Create another course
+POST {{url}}/courses
+Content-Type: application/json
+
+{
+  "title": "Advanced Algorithms",
+  "description": "Study of complex algorithms and data structures",
+  "departmentId": 3,
+  "credits": 4,
+  "duration": "16 weeks",
+  "startDate": "2025-06-01", 
+  "endDate": "2025-09-30"
+}
+
+### Get all students
+GET {{url}}/students
+
+### Get all courses
+GET {{url}}/courses
+
+### Enroll a student in a course (student id = 1, course id = 1)
+POST {{url}}/students/1/courses/1
+
+### Enroll a student in another course (student id = 1, course id = 2)
+POST {{url}}/students/1/courses/2
+
+### Get all courses for a student
+GET {{url}}/students/1/courses
+
+### Get all students enrolled in a course
+GET {{url}}/courses/1/students
+
+### Unenroll a student from a course
+DELETE {{url}}/students/1/courses/2
+
+### Alternative: Add a student to a course from the course endpoint
+POST {{url}}/courses/2/students/1
+
+### Alternative: Remove a student from a course from the course endpoint
+DELETE {{url}}/courses/2/students/1
+
+###############################################
+# Additional Many-to-Many Test Cases
+###############################################
+
+### Create multiple students for batch testing
+POST {{url}}/profiles
+Content-Type: application/json
+
+{
+  "firstName": "Alex",
+  "lastName": "Johnson",
+  "email": "alex.johnson@example.com",
+  "role": "student"
+}
+
+### Create student linked to profile
+POST {{url}}/students
+Content-Type: application/json
+
+{
+  "enrollmentDate": "2025-02-10",
+  "degreeProgram": "BSc Computer Science",
+  "gpa": 3.6,
+  "profileId": 2
+}
+
+### Create another profile
+POST {{url}}/profiles
+Content-Type: application/json
+
+{
+  "firstName": "Maria",
+  "lastName": "Rodriguez",
+  "email": "maria.rodriguez@example.com",
+  "role": "student"
+}
+
+### Create student linked to profile
+POST {{url}}/students
+Content-Type: application/json
+
+{
+  "enrollmentDate": "2025-01-20",
+  "degreeProgram": "MSc Data Science",
+  "gpa": 3.9,
+  "profileId": 3
+}
+
+### Create another course for testing multiple enrollments
+POST {{url}}/courses
+Content-Type: application/json
+
+{
+  "title": "Database Systems",
+  "description": "Principles of database design and implementation",
+  "departmentId": 1,
+  "credits": 4,
+  "duration": "16 weeks",
+  "startDate": "2025-06-01", 
+  "endDate": "2025-09-30"
+}
+
+### Batch enroll multiple students in the same course
+POST {{url}}/students/2/courses/3
+###
+POST {{url}}/students/3/courses/3
+
+### Batch enroll one student in multiple courses
+POST {{url}}/students/3/courses/1
+###
+POST {{url}}/students/3/courses/2
+
+### Get all students enrolled in a specific course
+GET {{url}}/courses/3/students
+
+### Get all courses for a specific student
+GET {{url}}/students/3/courses
