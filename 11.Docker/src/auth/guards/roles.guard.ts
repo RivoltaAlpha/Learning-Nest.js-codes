@@ -36,20 +36,17 @@ export class RolesGuard implements CanActivate {
       return false; // No user in request
     }
 
-    // Get role directly from the JWT payload
-    // const userRole = user.role;
-    // or  get it fro the db
     // Fetch the user's profile to get their role
-    const userRole = await this.profileRepository.findOne({
+    const userProfile = await this.profileRepository.findOne({
       where: { id: user.sub },
       select: ['id', 'role'],
     });
 
-    if (!userRole) {
+    if (!userProfile) {
       return false; // User profile not found
     }
 
     // Check if user's role is in the required roles
-    return requiredRoles.some((role) => userRole.role === role);
+    return requiredRoles.some((role) => userProfile.role === role);
   }
 }
